@@ -32,7 +32,7 @@ export function hero({ segment, tutorsById, content }) {
       </li>`)}
     </ul>
     <div class="hero-tutors-info">
-      <p class="hero-tutors-caption">Пробные уроки ведут <b>${tutors.map(tutor => tutor.name).join(', ')}</b></p>
+      <p class="hero-tutors-caption">Пробные онлайн-уроки ведут <b>${tutors.map(tutor => tutor.name).join(', ')}</b></p>
       <p class="seats-badge" data-seats-badge hidden><span class="seats-dot" aria-hidden="true"></span><span data-seats></span></p>
     </div>
   </div>

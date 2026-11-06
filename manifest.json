@@ -5,7 +5,7 @@
   "pages": {
     "1-4": {
       "path": "/1-4/",
-      "bytes": 44361,
+      "bytes": 43944,
       "inline": {
         "scripts": [
           "'sha256-OUmtX1oWAUtw4eFHRzBZLXIiL2smpWqz6dpDc9v0mVw='"
@@ -15,7 +15,7 @@
     },
     "10-11": {
       "path": "/10-11/",
-      "bytes": 44743,
+      "bytes": 44401,
       "inline": {
         "scripts": [
           "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
@@ -25,7 +25,7 @@
     },
     "5-9": {
       "path": "/5-9/",
-      "bytes": 44568,
+      "bytes": 44350,
       "inline": {
         "scripts": [
           "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"

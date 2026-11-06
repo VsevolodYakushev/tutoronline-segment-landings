@@ -1,11 +1,11 @@
 {
-  "css": "/css/landing.8423292f.css",
-  "js": "/js/9ca1ec67/main.mjs",
+  "css": "/css/landing.4718c36e.css",
+  "js": "/js/455ebb1b/main.mjs",
   "strict": false,
   "pages": {
     "1-4": {
       "path": "/1-4/",
-      "bytes": 42062,
+      "bytes": 44361,
       "inline": {
         "scripts": [
           "'sha256-OUmtX1oWAUtw4eFHRzBZLXIiL2smpWqz6dpDc9v0mVw='"
@@ -15,7 +15,7 @@
     },
     "10-11": {
       "path": "/10-11/",
-      "bytes": 42354,
+      "bytes": 44743,
       "inline": {
         "scripts": [
           "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
@@ -25,7 +25,7 @@
     },
     "5-9": {
       "path": "/5-9/",
-      "bytes": 42642,
+      "bytes": 44568,
       "inline": {
         "scripts": [
           "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"

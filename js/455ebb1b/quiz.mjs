@@ -1,5 +1,5 @@
 // Quiz DOM controller (T035): 3 steps, slot hold, validation on blur, submission, ticket.
-import { createInitialState, reduce, stepErrors, tutorsForStep, isStepValid, SUBJECTS } from './quiz-state.mjs';
+import { createInitialState, reduce, stepErrors, tutorsForStep, isStepValid, primarySubject, isSegmentGrade } from './quiz-state.mjs';
 import { buildSlots } from './lib/slots.mjs';
 import { attachPhoneMask } from './lib/phone-mask.mjs';
 import { addToCalendar } from './lib/calendar.mjs';
@@ -59,7 +59,11 @@ export function init(ctx) {
     wait: root.querySelector('[data-wait]'),
     hold: root.querySelector('[data-hold]'),
     holdLeft: root.querySelector('[data-hold-left]'),
+    step1Error: root.querySelector('[data-step1-error]'),
     step2Error: root.querySelector('[data-step2-error]'),
+    gradeNote: root.querySelector('[data-grade-note]'),
+    gradesToggle: root.querySelector('[data-grades-toggle]'),
+    gradesOther: root.querySelector('[data-grades-other]'),
     back: root.querySelector('[data-action="back"]'),
     next: root.querySelector('[data-action="next"]'),
     submit: root.querySelector('[data-action="submit"]'),
@@ -72,7 +76,7 @@ export function init(ctx) {
   const fields = Object.fromEntries(Object.entries(FIELD_IDS).map(([name, id]) => [name, document.getElementById(id)]));
   attachPhoneMask(fields.phone);
 
-  let state = createInitialState({ segment, params: new URLSearchParams(location.search), tutorsById });
+  let state = createInitialState({ segment, params: new URLSearchParams(location.search), tutorsById, grades: site.grades, subjects: segment.subjects });
   try {
     const draft = JSON.parse(sessionStorage.getItem(draftKey) || 'null');
     if (draft && typeof draft === 'object') {
@@ -98,7 +102,7 @@ export function init(ctx) {
   let seen = false;
   const trackStep = () => {
     if (!seen) return; // the first step event fires when the form is actually seen
-    analytics?.track(`lp_step_${state.step}`, state.step === 2 ? { step: 2, subject: state.subject, grade: state.grade } : { step: state.step });
+    analytics?.track(`lp_step_${state.step}`, state.step === 2 ? { step: 2, subject: primarySubject(state), grade: state.grade } : { step: state.step });
   };
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver(entries => {
@@ -139,8 +143,9 @@ export function init(ctx) {
   }
 
   function renderTutors() {
-    const list = tutorsForStep({ segment, subject: state.subject, tutorsById, preferredId: state.preferredTutorId });
-    const key = `${state.subject}|${list.map(tutor => tutor.id).join(',')}|${state.tutorId}`;
+    const subject = primarySubject(state);
+    const list = tutorsForStep({ segment, subject, tutorsById, preferredId: state.preferredTutorId });
+    const key = `${subject}|${list.map(tutor => tutor.id).join(',')}|${state.tutorId}`;
     if (key === renderedTutorKey) return;
     renderedTutorKey = key;
     node.tutorList.replaceChildren(...list.map(tutor => {
@@ -220,7 +225,14 @@ export function init(ctx) {
 
     // Step 1 chips
     root.querySelectorAll('[data-grade]').forEach(chip => chip.setAttribute('aria-pressed', String(Number(chip.dataset.grade) === state.grade)));
-    root.querySelectorAll('[data-subject]').forEach(chip => chip.setAttribute('aria-pressed', String(chip.dataset.subject === state.subject)));
+    root.querySelectorAll('[data-subject]').forEach(chip => chip.setAttribute('aria-pressed', String(state.subjects.includes(chip.dataset.subject))));
+    // FR-038: a grade from another segment stays visible and warns that a manager will match the tutor
+    const outside = !isSegmentGrade(segment, state.grade);
+    if (node.gradesOther && outside) { node.gradesOther.hidden = false; node.gradesToggle?.setAttribute('aria-expanded', 'true'); }
+    if (node.gradeNote) {
+      node.gradeNote.hidden = !outside;
+      node.gradeNote.textContent = outside ? `${state.grade} класс — за пределами этого набора: менеджер подберёт репетитора и подтвердит время.` : '';
+    }
 
     // Step 2
     renderTutors();
@@ -322,6 +334,11 @@ export function init(ctx) {
 
   function showStepErrors(step) {
     const errors = stepErrors(state, step, Date.now());
+    if (step === 1 && node.step1Error) {
+      const message = errors.grade || errors.subject || '';
+      node.step1Error.hidden = !message;
+      node.step1Error.textContent = message;
+    }
     if (step === 2) {
       const message = errors.tutor || errors.slot;
       node.step2Error.hidden = !message;
@@ -338,7 +355,22 @@ export function init(ctx) {
 
   // Step 1
   root.querySelectorAll('[data-grade]').forEach(chip => chip.addEventListener('click', () => { markStarted(); dispatch({ type: 'grade', grade: Number(chip.dataset.grade) }); }));
-  root.querySelectorAll('[data-subject]').forEach(chip => chip.addEventListener('click', () => { markStarted(); dispatch({ type: 'subject', subject: chip.dataset.subject, tutors: tutorsById }); }));
+  root.querySelectorAll('[data-subject]').forEach(chip => chip.addEventListener('click', () => {
+    markStarted();
+    const before = state.subjects.join(',');
+    dispatch({ type: 'subject', subject: chip.dataset.subject, tutors: tutorsById });
+    // the only rejected toggle is unchecking the last subject
+    if (node.step1Error) {
+      const blocked = before === state.subjects.join(',') && state.subjects.includes(chip.dataset.subject);
+      node.step1Error.hidden = !blocked;
+      node.step1Error.textContent = blocked ? 'Оставьте хотя бы один предмет' : '';
+    }
+  }));
+  node.gradesToggle?.addEventListener('click', () => {
+    const open = node.gradesOther.hidden;
+    node.gradesOther.hidden = !open;
+    node.gradesToggle.setAttribute('aria-expanded', String(open));
+  });
 
   // Fields: validate on blur, never wipe data on error
   for (const [name, input] of Object.entries(fields)) {
@@ -374,7 +406,7 @@ export function init(ctx) {
     const tutor = currentTutor();
     const email = state.email.trim();
     const payload = {
-      segment: segment.id, variant: ctx.variant, grade: state.grade, subject: state.subject,
+      segment: segment.id, variant: ctx.variant, grade: state.grade, subjects: state.subjects,
       tutor: { id: tutor.id, name: tutor.name }, slot: state.slot.startsAt,
       name: state.name.trim(), phone: state.phone, email, discountRequested: Boolean(email) && !offerExpired(),
       commitment: state.commitment, consent_pd: state.consentPd, consent_ads: state.consentAds,
@@ -428,7 +460,8 @@ export function init(ctx) {
     if (!tutorsById[tutorId] || state.status === 'ticket') return;
     track('lp_tutor_select', { tutor_id: tutorId, origin: 'tutors_block' });
     markStarted('tutor_card');
-    state = { ...reduce(reduce(state, { type: 'subject', subject: 'math', tutors: tutorsById }), { type: 'tutor', tutorId }), preferredTutorId: tutorId, step: 2 };
+    const kept = ['math', ...state.subjects.filter(subject => subject !== 'math')];
+    state = { ...reduce(reduce(state, { type: 'subjects', subjects: kept, tutors: tutorsById }), { type: 'tutor', tutorId }), preferredTutorId: tutorId, step: 2 };
     save();
     render();
   });

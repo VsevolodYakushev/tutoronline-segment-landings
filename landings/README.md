@@ -107,6 +107,9 @@ landings/
 | `convert-images.py` | Однократно: фото репетиторов → WebP/AVIF в 4 размерах (Pillow ≥ 11.2) |
 | `overflow.mjs` | Отладка вёрстки: показывает элементы шире вьюпорта — `node tools/overflow.mjs 5-9 768` |
 | `shoot.mjs` | Отладка вёрстки: скриншоты блока на заданных ширинах |
+| `demo-build.mjs` | Сборка превью для статического хостинга: пути с префиксом, `noindex`, корневая страница со ссылками — `node tools/demo-build.mjs tutoronline-segment-landings demo` |
+
+Превью вёрстки опубликовано на GitHub Pages: https://vsevolodyakushev.github.io/tutoronline-segment-landings/ — ветка `gh-pages`, собирается `demo-build.mjs`. Отправка заявки там не работает (нужен `server.mjs`), страницы закрыты от индексации.
 
 `overflow.mjs` и `shoot.mjs` — вспомогательные скрипты разработки, в деплой не входят; обоим нужны установленный Playwright и запущенный сервер.
 

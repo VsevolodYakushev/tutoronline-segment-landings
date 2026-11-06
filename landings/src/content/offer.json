@@ -1,0 +1,12 @@
+{
+  "trialPrice": 1500,
+  "trialFinal": 0,
+  "discount": 1500,
+  "lessonPrice": null,
+  "timerMinutes": 15,
+  "seatsMin": 3,
+  "seatsMax": 10,
+  "promoCode": "",
+  "storageVersion": "v1",
+  "ttlDays": 30
+}

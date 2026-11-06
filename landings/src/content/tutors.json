@@ -1,0 +1,56 @@
+[
+  {
+    "id": "roman-yurievich", "name": "Роман Юрьевич", "nameGenitive": "Романа Юрьевича", "gender": "m",
+    "photo": { "webp": "roman-yurievich", "avif": "roman-yurievich", "focal": "center 30%" },
+    "subjects": ["math", "physics", "highermath"], "subjectsLabel": "Математика, физика, высшая математика",
+    "experienceYears": 15, "lessonsCount": 13678, "rating": 5.0, "verified": true, "placeholder": false
+  },
+  {
+    "id": "amet-memetovich", "name": "Амет Меметович", "nameGenitive": "Амета Меметовича", "gender": "m",
+    "photo": { "webp": "amet-memetovich", "avif": "amet-memetovich", "focal": "center 30%" },
+    "subjects": ["math", "physics"], "subjectsLabel": "Математика, физика",
+    "experienceYears": 4, "lessonsCount": 6415, "rating": 5.0, "verified": true, "placeholder": false
+  },
+  {
+    "id": "galina-vladimirovna", "name": "Галина Владимировна", "nameGenitive": "Галины Владимировны", "gender": "f",
+    "photo": { "webp": "galina-vladimirovna", "avif": "galina-vladimirovna", "focal": "center 30%" },
+    "subjects": ["math"], "subjectsLabel": "Математика",
+    "experienceYears": 39, "lessonsCount": 1217, "rating": 4.7, "verified": true, "placeholder": false
+  },
+  {
+    "id": "evgenia-nikolaevna", "name": "Евгения Николаевна", "nameGenitive": "Евгении Николаевны", "gender": "f",
+    "photo": { "webp": "evgenia-nikolaevna", "avif": "evgenia-nikolaevna", "focal": "center 30%" },
+    "subjects": ["math", "highermath"], "subjectsLabel": "Математика, высшая математика",
+    "experienceYears": 22, "lessonsCount": 1059, "rating": 4.6, "verified": true, "placeholder": false
+  },
+  {
+    "id": "rustam-ravilevich", "name": "Рустам Равилевич", "nameGenitive": "Рустама Равилевича", "gender": "m",
+    "photo": { "webp": "rustam-ravilevich", "avif": "rustam-ravilevich", "focal": "center 30%" },
+    "subjects": ["math", "physics", "chemistry"], "subjectsLabel": "Математика, физика, химия",
+    "experienceYears": 7, "lessonsCount": 2331, "rating": 4.6, "verified": true, "placeholder": false
+  },
+  {
+    "id": "pavel-stepanovich", "name": "Павел Степанович", "nameGenitive": "Павла Степановича", "gender": "m",
+    "photo": { "webp": "pavel-stepanovich", "avif": "pavel-stepanovich", "focal": "center 18%" },
+    "subjects": ["math"], "subjectsLabel": "Преподаватель математики",
+    "experienceYears": null, "lessonsCount": null, "rating": null, "verified": true, "placeholder": false
+  },
+  {
+    "id": "inna-ivanovna", "name": "Инна Ивановна", "nameGenitive": "Инны Ивановны", "gender": "f",
+    "photo": { "webp": "inna-ivanovna", "avif": "inna-ivanovna", "focal": "center 18%" },
+    "subjects": ["math"], "subjectsLabel": "Преподаватель математики",
+    "experienceYears": null, "lessonsCount": null, "rating": null, "verified": true, "placeholder": false
+  },
+  {
+    "id": "ekaterina-olegovna", "name": "Екатерина Олеговна", "nameGenitive": "Екатерины Олеговны", "gender": "f",
+    "photo": { "webp": "ekaterina-olegovna", "avif": "ekaterina-olegovna", "focal": "center 18%" },
+    "subjects": ["math"], "subjectsLabel": "Преподаватель математики",
+    "experienceYears": null, "lessonsCount": null, "rating": null, "verified": true, "placeholder": false
+  },
+  {
+    "id": "russian-match", "name": "Подберём репетитора по русскому", "nameGenitive": "", "gender": null,
+    "photo": null,
+    "subjects": ["russian"], "subjectsLabel": "Русский язык",
+    "experienceYears": null, "lessonsCount": null, "rating": null, "verified": false, "placeholder": true
+  }
+]

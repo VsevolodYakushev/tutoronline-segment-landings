@@ -1,0 +1,37 @@
+{
+  "brand": "TutorOnline",
+  "phone": "+7 (499) 704-12-12",
+  "phoneHref": "tel:+74997041212",
+  "email": "info@tutoronline.ru",
+  "hours": "с 09:00 до 22:00",
+  "ymCounterId": null,
+  "legal": {
+    "consentPd": "https://www.tutoronline.ru/soglasie-na-obrabotku-personalnyh-dannyh",
+    "policy": "https://www.tutoronline.ru/politika-obrabotki-personalnyh-dannyh",
+    "consentAds": "https://www.tutoronline.ru/soglasie-na-poluchenie-informacionnoj-i-reklamnoj-rassylki",
+    "documents": [
+      { "label": "Пользовательское соглашение", "href": "https://www.tutoronline.ru/agreement" },
+      { "label": "Согласие на обработку персональных данных", "href": "https://www.tutoronline.ru/soglasie-na-obrabotku-personalnyh-dannyh" },
+      { "label": "Политика обработки персональных данных", "href": "https://www.tutoronline.ru/politika-obrabotki-personalnyh-dannyh" },
+      { "label": "Сведения об организации", "href": "https://www.tutoronline.ru/svedeniya-ob-organizatsii" },
+      { "label": "Согласие на получение информационной и рекламной рассылки", "href": "https://www.tutoronline.ru/soglasie-na-poluchenie-informacionnoj-i-reklamnoj-rassylki" },
+      { "label": "Технические требования", "href": "https://www.tutoronline.ru/tehnicheskie-trebovanija" },
+      { "label": "Правила использования сайта", "href": "https://www.tutoronline.ru/terms-of-use" }
+    ],
+    "license": { "label": "Государственная лицензия", "href": "https://www.tutoronline.ru/license" },
+    "company": [
+      "ИНН - 7751192740",
+      "ОГРН - 1217700064152",
+      "© 2010 — 2026. ООО \"ТьюторОнлайн\" - Москва, ул. Радужная 21. Все права защищены."
+    ]
+  },
+  "reviewPlatforms": [
+    { "name": "Яндекс", "logo": "yandex.png", "rating": "4,8" },
+    { "name": "Т-Банк", "logo": "tbank.png", "rating": "4,9" },
+    { "name": "Отзовик", "logo": "otzovik.png", "rating": "4,9" },
+    { "name": "РБК", "logo": "rbc.png", "rating": "8,0" },
+    { "name": "Пикабу Курсы", "logo": "pikabu.png", "rating": "4,8" },
+    { "name": "2ГИС", "logo": "2gis.png", "rating": "5" },
+    { "name": "Авито", "logo": "avito.png", "rating": "4,8" }
+  ]
+}

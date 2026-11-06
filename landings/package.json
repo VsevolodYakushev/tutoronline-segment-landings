@@ -1,0 +1,18 @@
+{
+  "name": "tutoronline-segment-landings",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node build.mjs && node tools/size-check.mjs",
+    "build:strict": "node build.mjs --strict && node tools/size-check.mjs",
+    "start": "node server.mjs",
+    "test": "node --test --test-concurrency=1 \"tests/unit/*.test.mjs\" \"tests/server/*.test.mjs\"",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1"
+  }
+}

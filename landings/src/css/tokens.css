@@ -1,0 +1,80 @@
+/* Design tokens: :root copied verbatim from Design System/tutoronline-adaptive/styles.css */
+:root{
+  --primary:#5756b3;
+  --secondary:#f1f3ff;
+  --accent:#ff5247;
+  --background:#f6f7fb;
+  --surface:#ffffff;
+  --text-1:#333333;
+  --text-2:#4f4f4f;
+  --text-3:#828282;
+  --border-form:#f2f2f2;
+  --success:#27ae60;
+  --placeholder:#e9ecf5;
+  --shadow-tint:#9ca1bb26;
+  --space-1:8px;
+  --space-2:12px;
+  --space-3:16px;
+  --space-4:24px;
+  --space-5:32px;
+  --space-6:48px;
+  --space-7:64px;
+  --space-8:128px;
+  --radius-button-m:24px;
+  --radius-button-l:32px;
+  --radius-input:32px;
+  --radius-card:24px;
+  --radius-modal:24px;
+  --radius-modal-mobile:16px;
+  --container-1920:1430px;
+  --container-1440:1142px;
+  --container-1024:976px;
+  --container-768:736px;
+  --container-375:343px;
+  --icon-s:24px;
+  --icon-m:32px;
+  --icon-l:48px;
+  --button-m-height:48px;
+  --button-l-height:56px;
+  --button-l-padding-x:40px;
+  --input-height:40px;
+  --modal-s:400px;
+  --modal-m:460px;
+  --modal-l:898px;
+  --modal-mobile:343px;
+  --font-sans:Graphik, "Graphik LC Web", "Graphik LC", -apple-system, "Segoe UI", Arial, sans-serif;
+  --text-desktop-h1:500 56px/1.2 var(--font-sans);
+  --text-desktop-h2:500 40px/1.2 var(--font-sans);
+  --text-desktop-h3:500 28px/1.2 var(--font-sans);
+  --text-desktop-h4:400 28px/1.2 var(--font-sans);
+  --text-desktop-t1:500 40px/1.2 var(--font-sans);
+  --text-desktop-t2:500 32px/1.2 var(--font-sans);
+  --text-desktop-t3:500 24px/1.2 var(--font-sans);
+  --text-desktop-t4:400 20px/1.2 var(--font-sans);
+  --text-desktop-t5:400 18px/1.2 var(--font-sans);
+  --text-desktop-t6:400 16px/1.2 var(--font-sans);
+  --text-desktop-t7:400 15px/1.2 var(--font-sans);
+  --text-mobile-h1:500 32px/1.2 var(--font-sans);
+  --text-mobile-h2:500 28px/1.2 var(--font-sans);
+  --text-mobile-h3:500 24px/1.2 var(--font-sans);
+  --text-mobile-t1:400 16px/1.2 var(--font-sans);
+  --text-mobile-t2:400 14px/1.2 var(--font-sans);
+  --text-mobile-t3:400 12px/1.2 var(--font-sans);
+  --text-button-m:500 18px/1.2 var(--font-sans);
+  --text-cta-l:500 22px/1.2 var(--font-sans);
+  --text-input:400 16px/1.2 var(--font-sans);
+
+  /* Landing additions */
+  --topbar-h:44px;
+  --container-max:1200px;
+  --gutter:16px;
+  --motion-step:240ms;
+  --tap-min:44px;
+  --border-soft:#e2e3ee;
+  --placeholder-text:#9a9bb0;
+  --promo:#ffd600;
+  --error-text:#b52d25;
+}
+
+@font-face{font-family:"Graphik";src:url(../assets/fonts/graphik-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Graphik";src:url(../assets/fonts/graphik-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap}

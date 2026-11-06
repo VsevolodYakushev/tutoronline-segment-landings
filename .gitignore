@@ -1,0 +1,16 @@
+# Dependencies and build output
+node_modules/
+dist/
+demo/
+test-results/
+playwright-report/
+.venv/
+
+# Local artifacts
+*.log
+.env*
+.DS_Store
+Thumbs.db
+
+# Redundant archive of the base landing (the folder itself is in the repo)
+Design System/tutoronline-adaptive/tutoronline-adaptive.zip

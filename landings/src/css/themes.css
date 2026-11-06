@@ -1,0 +1,18 @@
+/* Segment themes (T047). Segments differ by pain and tone, not by brand colors (ТЗ §2). */
+
+/* 1–4: warmer, softer shapes */
+[data-segment="1-4"] .pain-card,[data-segment="1-4"] .extra-card,[data-segment="1-4"] .final-card{border-radius:28px}
+[data-segment="1-4"] .pain-icon{background:#fff1ef;color:var(--accent)}
+[data-segment="1-4"] .hero{background:linear-gradient(180deg,#fff4ec 0%,var(--surface) 100%)}
+
+/* 10–11: contrast hero — primary background, white text (white on #5756b3 ≈ 5.9:1) */
+[data-theme="contrast"] .site-header{background:var(--primary)}
+[data-theme="contrast"] .brand img{filter:brightness(0) invert(1)}
+[data-theme="contrast"] .header-phone{color:#fff}
+[data-theme="contrast"] .hero{background:var(--primary);color:#fff}
+[data-theme="contrast"] .hero-title{color:#fff}
+[data-theme="contrast"] .hero-sub{color:rgba(255,255,255,.88)}
+[data-theme="contrast"] .hero-badge{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff}
+[data-theme="contrast"] .hero-avatar-photo{border-color:var(--primary)}
+[data-theme="contrast"] .hero-avatar-name,[data-theme="contrast"] .seats-badge,[data-theme="contrast"] .hero-tutors-caption b{color:#fff}
+[data-theme="contrast"] .hero-tutors-caption,[data-theme="contrast"] .hero-note{color:rgba(255,255,255,.8)}

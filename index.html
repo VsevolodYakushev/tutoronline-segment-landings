@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сегментные лендинги — превью</title>
+<style>
+  :root{color-scheme:light dark}
+  body{margin:0;padding:40px 20px;background:#f6f7fb;color:#333;font:400 16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:640px;margin:0 auto}
+  h1{margin:0 0 8px;font-size:28px;line-height:1.2}
+  p{margin:0 0 16px;color:#4f4f4f}
+  ul{list-style:none;margin:24px 0;padding:0;display:grid;gap:12px}
+  a.card{display:block;padding:18px 20px;border-radius:16px;background:#fff;box-shadow:0 2px 10px rgba(51,51,51,.08);color:#5756b3;font-weight:500;text-decoration:none}
+  a.card:hover{box-shadow:0 4px 16px rgba(51,51,51,.14)}
+  a.card span{display:block;margin-top:4px;color:#828282;font-weight:400;font-size:14px}
+  .note{padding:16px 18px;border-radius:14px;background:#fff8d6;font-size:14px;color:#333}
+  .note b{display:block;margin-bottom:6px}
+  footer{margin-top:28px;font-size:13px;color:#828282}
+  @media (prefers-color-scheme:dark){
+    body{background:#1b1c22;color:#e8e8ef}p{color:#b8b8c6}
+    a.card{background:#24252d;color:#a9a8ee}.note{background:#2e2a1c;color:#e8e8ef}
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Сегментные лендинги: превью вёрстки</h1>
+  <p>Три страницы под холодный трафик маркетплейсов. Открывайте с телефона — вёрстка mobile-first, эталон 360×640.</p>
+  <ul>
+    <li><a class="card" href="/tutoronline-segment-landings/1-4/">1–4 класс<span>/tutoronline-segment-landings/1-4/</span></a></li>
+    <li><a class="card" href="/tutoronline-segment-landings/10-11/">10–11 класс<span>/tutoronline-segment-landings/10-11/</span></a></li>
+    <li><a class="card" href="/tutoronline-segment-landings/5-9/">5–9 класс<span>/tutoronline-segment-landings/5-9/</span></a></li>
+  </ul>
+  <div class="note">
+    <b>Это статическое превью, а не рабочий сайт</b>
+    Вёрстка, квиз, таймер скидки и счётчик мест работают. Отправка заявки — нет: за неё отвечает Node-сервер, которого на статическом хостинге нет, поэтому на последнем шаге формы появится сообщение с телефоном вместо экрана брони. Полная версия поднимается локально через <code>npm start</code>.
+  </div>
+  <footer>Собрано из исходников репозитория: <code>node tools/demo-build.mjs</code></footer>
+</main>
+</body>
+</html>

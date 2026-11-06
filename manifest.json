@@ -1,0 +1,37 @@
+{
+  "css": "/css/landing.8423292f.css",
+  "js": "/js/9ca1ec67/main.mjs",
+  "strict": false,
+  "pages": {
+    "1-4": {
+      "path": "/1-4/",
+      "bytes": 42062,
+      "inline": {
+        "scripts": [
+          "'sha256-OUmtX1oWAUtw4eFHRzBZLXIiL2smpWqz6dpDc9v0mVw='"
+        ],
+        "styles": []
+      }
+    },
+    "10-11": {
+      "path": "/10-11/",
+      "bytes": 42354,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "5-9": {
+      "path": "/5-9/",
+      "bytes": 42642,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    }
+  }
+}

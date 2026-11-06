@@ -19,6 +19,7 @@ export function hero({ segment, tutorsById, content }) {
   return html`<section id="top" class="hero" aria-labelledby="hero-title">
 <div class="wrap hero-grid">
   <div class="hero-copy">
+    <p class="hero-source" data-source-note hidden></p>
     <p class="hero-badge"><span class="hero-badge-price">0 ₽</span><span>${variantText(segment.hero, 'offerBadge')}</span></p>
     <h1 id="hero-title" class="hero-title">${variantText(segment.hero, 'title')}</h1>
     <p class="hero-sub">${variantText(segment.hero, 'subtitle')}</p>

@@ -13,16 +13,20 @@ function metrika(id) {
 }
 
 export function pageConfig({ segment, content, tutorsById }) {
-  const ids = new Set([...(segment.heroTutorIds || []), ...(segment.tutorIds?.math || []), ...(segment.tutorIds?.russian || [])]);
+  const ids = new Set([...(segment.heroTutorIds || []), ...Object.values(segment.tutorIds || {}).flat()]);
   return {
     segment: {
       id: segment.id, path: segment.path, grades: segment.grades, defaultGrade: segment.defaultGrade,
       audience: segment.audience, tutorIds: segment.tutorIds, topbar: segment.topbar, quizVariant: segment.quizVariant || null,
+      subjects: segment.subjects || ['math'],
     },
     offer: content.offer,
     schedule: content.schedule,
     tutors: [...ids].map(id => tutorsById[id]).filter(Boolean),
-    site: { phone: content.site.phone, phoneHref: content.site.phoneHref, ymCounterId: content.site.ymCounterId },
+    site: {
+      phone: content.site.phone, phoneHref: content.site.phoneHref, ymCounterId: content.site.ymCounterId,
+      grades: content.site.grades || segment.grades, subjects: content.site.subjects || {}, sourceNotes: content.site.sourceNotes || {},
+    },
   };
 }
 

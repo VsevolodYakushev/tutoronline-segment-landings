@@ -22,6 +22,18 @@ function metrikaClientId(counterId) {
   });
 }
 
+// FR-035: one line on the first screen for visitors who came from a known marketplace.
+const SOURCE_ALIASES = { wildberries: 'wb', 'wildberries.ru': 'wb', 'ozon.ru': 'ozon', 'avito.ru': 'avito' };
+function showSourceNote(config, firstTouch) {
+  const node = document.querySelector('[data-source-note]');
+  if (!node) return;
+  const raw = String(firstTouch?.utm_source || '').trim().toLowerCase();
+  const text = config.site.sourceNotes?.[SOURCE_ALIASES[raw] || raw];
+  if (!text) return;
+  node.textContent = text;
+  node.hidden = false;
+}
+
 async function start() {
   const config = readConfig();
   if (!config) return;
@@ -33,6 +45,7 @@ async function start() {
     if (clientId) visitor = browserVisitorState({ segmentId, offer: config.offer, visitorId: clientId });
   }
   visitor.captureFirstTouch(location.search);
+  showSourceNote(config, visitor.state.firstTouch);
   const variant = document.documentElement.dataset.variant || visitor.state.variant;
   analytics.init({ segment: segmentId, variant, firstTouch: visitor.state.firstTouch, ymCounterId: config.site.ymCounterId });
   analytics.watchPage();

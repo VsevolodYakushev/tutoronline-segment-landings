@@ -11,7 +11,7 @@ const SLOT = '2026-11-12T18:00:00+03:00';
 
 function payload(overrides = {}) {
   return {
-    segment: '5-9', variant: 'a', grade: 7, subject: 'math',
+    segment: '5-9', variant: 'a', grade: 7, subjects: ['math'],
     tutor: { id: 'roman-yurievich', name: 'Подменённое имя' }, slot: SLOT,
     name: 'Мария', phone: '+7 (912) 345-67-89', email: 'maria@example.com', discountRequested: true,
     commitment: true, consent_pd: true, consent_ads: false,
@@ -27,12 +27,17 @@ test('validation codes follow contracts/lead-api.md', () => {
   const cases = [
     [{ segment: '7-8' }, 'invalid_form'],
     [{ variant: 'c' }, 'invalid_form'],
-    [{ grade: 11 }, 'invalid_form'],
+    [{ grade: 12 }, 'invalid_form'],
     [{ grade: '7' }, 'invalid_form'],
-    [{ subject: 'physics' }, 'invalid_form'],
+    [{ subjects: [] }, 'invalid_form'],
+    [{ subjects: ['math', 'math'] }, 'invalid_form'], // duplicates
+    [{ subjects: ['biology'] }, 'invalid_form'],
+    [{ subjects: ['highermath'] }, 'invalid_form'], // not offered in this segment
+    [{ subjects: 'math' }, 'invalid_form'], // must be an array
     [{ tutor: { id: 'unknown' } }, 'invalid_form'],
     [{ tutor: { id: 'pavel-stepanovich' } }, 'invalid_form'], // not in the segment form list
-    [{ subject: 'russian' }, 'invalid_form'], // roman-yurievich does not teach russian
+    [{ subjects: ['russian'] }, 'invalid_form'], // roman-yurievich does not teach russian
+    [{ subjects: ['physics', 'math'] }, 'ok'], // physics is primary and he teaches it
     [{ slot: 'tomorrow' }, 'invalid_slot'],
     [{ slot: '2026-11-01T18:00:00+03:00' }, 'invalid_slot'],
     [{ slot: '2026-11-30T18:00:00+03:00' }, 'invalid_slot'],
@@ -45,7 +50,10 @@ test('validation codes follow contracts/lead-api.md', () => {
   ];
   for (const [override, code] of cases) assert.equal(codeOf(() => leadFields(payload(override), ctx())), code, JSON.stringify(override));
   assert.equal(codeOf(() => leadFields(payload(), ctx())), 'ok');
-  assert.equal(codeOf(() => leadFields(payload({ subject: 'russian', tutor: { id: 'russian-match' } }), ctx())), 'ok');
+  assert.equal(codeOf(() => leadFields(payload({ subjects: ['russian'], tutor: { id: 'russian-match' } }), ctx())), 'ok');
+  // FR-038: a grade outside this segment is accepted and marked for the manager
+  assert.equal(codeOf(() => leadFields(payload({ grade: 3 }), ctx())), 'ok');
+  assert.match(leadFields(payload({ grade: 3 }), ctx()).info, /Класс: 3 \(вне сегмента\)/);
 });
 
 test('webhook fields: tutor name from tutors.json, server promo code, landing with 5 UTM only', () => {
@@ -54,8 +62,12 @@ test('webhook fields: tutor name from tutors.json, server promo code, landing wi
   assert.equal(fields.subject, 'Математика');
   assert.equal(fields.landing, 'https://example.ru/5-9/?utm_source=avito&utm_medium=cpc&utm_campaign=trial-5-9&utm_content=4128837712');
   assert.equal(fields.info,
-    'Бронь пробного урока TO-7KQ2MD | Сегмент: 5-9 | Класс: 7 | Предмет: Математика | Репетитор: Роман Юрьевич | Слот: чт 12.11.2026 18:00 МСК | Промокод: PROMO100 (100%) | Скидка −1500 ₽: запрошена | Вариант: a | Источник: avito | Объявление: 4128837712 | Реклама: нет | Обязательство прийти: да');
+    'Бронь пробного урока TO-7KQ2MD | Сегмент: 5-9 | Класс: 7 | Предмет: Математика | Ещё предметы: — | Репетитор: Роман Юрьевич | Слот: чт 12.11.2026 18:00 МСК | Промокод: PROMO100 (100%) | Скидка −1500 ₽: запрошена | Вариант: a | Источник: avito | Объявление: 4128837712 | Реклама: нет | Обязательство прийти: да');
   assert.ok(!fields.info.includes('HACKED'));
+  // FR-037: only the primary subject goes into the webhook field, the rest into info
+  const several = leadFields(payload({ subjects: ['math', 'physics', 'chemistry'] }), ctx());
+  assert.equal(several.subject, 'Математика');
+  assert.match(several.info, /Предмет: Математика \| Ещё предметы: Физика, Химия/);
   assert.ok(!fields.info.includes('Подменённое'));
 });
 
@@ -65,7 +77,7 @@ test('discount is requested only with a valid email and client flag', () => {
 });
 
 test('placeholder tutor, missing UTM and empty promo use dashes', () => {
-  const info = leadFields(payload({ subject: 'russian', tutor: { id: 'russian-match' }, attribution: {} }), ctx({ content: { ...content, offer: { ...content.offer, promoCode: '' } } })).info;
+  const info = leadFields(payload({ subjects: ['russian'], tutor: { id: 'russian-match' }, attribution: {} }), ctx({ content: { ...content, offer: { ...content.offer, promoCode: '' } } })).info;
   assert.match(info, /Предмет: Русский язык/);
   assert.match(info, /Репетитор: подобрать \(русский язык\)/);
   assert.match(info, /Промокод: —/);

@@ -44,8 +44,27 @@
     ],
     "russian": [
       "russian-match"
+    ],
+    "physics": [
+      "roman-yurievich",
+      "amet-memetovich",
+      "rustam-ravilevich"
+    ],
+    "chemistry": [
+      "rustam-ravilevich"
+    ],
+    "highermath": [
+      "roman-yurievich",
+      "evgenia-nikolaevna"
     ]
   },
+  "subjects": [
+    "math",
+    "russian",
+    "physics",
+    "chemistry",
+    "highermath"
+  ],
   "extraBlocks": [
     "parents"
   ],

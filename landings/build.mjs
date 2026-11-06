@@ -64,7 +64,8 @@ export function validate(content, { strict = false } = {}) {
     if (!SEGMENT_ID.test(segment.id || '')) errors.push(`${where}: неверный id`);
     if (!Array.isArray(segment.grades) || !segment.grades.length) errors.push(`${where}: grades — непустой массив`);
     else if (!segment.grades.includes(segment.defaultGrade)) errors.push(`${where}: defaultGrade должен входить в grades`);
-    for (const subject of ['math', 'russian']) {
+    for (const subject of Object.keys(segment.tutorIds || {})) {
+      if (!content.site.subjects?.[subject]) errors.push(`${where}: tutorIds.${subject} — неизвестный предмет (нет в site.json → subjects)`);
       for (const id of segment.tutorIds?.[subject] || []) {
         const tutor = byId.get(id);
         if (!tutor) errors.push(`${where}: tutorIds.${subject} ссылается на неизвестного репетитора «${id}»`);
@@ -72,6 +73,12 @@ export function validate(content, { strict = false } = {}) {
       }
     }
     for (const id of segment.heroTutorIds || []) if (!byId.has(id)) errors.push(`${where}: heroTutorIds ссылается на неизвестного репетитора «${id}»`);
+    // FR-016, FR-037: the subject list of a segment must be known and have tutors behind it
+    if (!segment.subjects?.length) errors.push(`${where}: subjects — непустой массив предметов`);
+    for (const subject of segment.subjects || []) {
+      if (!content.site.subjects?.[subject]) errors.push(`${where}: subjects содержит неизвестный предмет «${subject}»`);
+      else if (!(segment.tutorIds?.[subject] || []).length) errors.push(`${where}: для предмета «${subject}» не задан ни один репетитор в tutorIds`);
+    }
     for (const [trail, text] of collectStrings(segment, '', [])) {
       const lower = text.toLowerCase();
       for (const word of stopwords) if (lower.includes(word)) errors.push(`${where}: стоп-слово «${word}» в ${trail} — тексты не обещают результат (FR-007)`);

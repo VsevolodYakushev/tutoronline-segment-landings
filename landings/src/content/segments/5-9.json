@@ -47,8 +47,22 @@
     ],
     "russian": [
       "russian-match"
+    ],
+    "physics": [
+      "roman-yurievich",
+      "amet-memetovich",
+      "rustam-ravilevich"
+    ],
+    "chemistry": [
+      "rustam-ravilevich"
     ]
   },
+  "subjects": [
+    "math",
+    "russian",
+    "physics",
+    "chemistry"
+  ],
   "extraBlocks": [
     "oge"
   ],

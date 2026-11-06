@@ -31,6 +31,8 @@ function checkbox({ id, name, required, children }) {
 export function quiz({ segment, content }) {
   const copy = COPY[segment.audience] || COPY.parent;
   const { offer, site } = content;
+  const subjects = (segment.subjects?.length ? segment.subjects : ['math']).filter(key => site.subjects?.[key]);
+  const otherGrades = (site.grades || []).filter(grade => !segment.grades.includes(grade));
   return html`<section id="form" class="sec quiz-sec" aria-labelledby="quiz-title">
 <div class="wrap">
 <div class="quiz-card">
@@ -50,16 +52,21 @@ export function quiz({ segment, content }) {
       <p class="quiz-label" id="quiz-grade-label">Класс</p>
       <div class="chips" role="group" aria-labelledby="quiz-grade-label">
         ${segment.grades.map(grade => html`<button type="button" class="chip" data-grade="${grade}" aria-pressed="${grade === segment.defaultGrade ? 'true' : 'false'}">${grade} класс</button>`)}
+        ${otherGrades.length ? html`<button type="button" class="chip chip-more" data-grades-toggle aria-expanded="false" aria-controls="quiz-grades-other">Другой класс</button>` : ''}
       </div>
-      <p class="quiz-label" id="quiz-subject-label">Предмет</p>
+      ${otherGrades.length ? html`<div class="chips chips-other" id="quiz-grades-other" role="group" aria-label="Другие классы" data-grades-other hidden>
+        ${otherGrades.map(grade => html`<button type="button" class="chip" data-grade="${grade}" aria-pressed="false">${grade} класс</button>`)}
+      </div>` : ''}
+      <p class="quiz-label" id="quiz-subject-label">Предмет <span class="quiz-label-note">можно выбрать несколько</span></p>
       <div class="chips" role="group" aria-labelledby="quiz-subject-label">
-        <button type="button" class="chip" data-subject="math" aria-pressed="true">Математика</button>
-        <button type="button" class="chip" data-subject="russian" aria-pressed="false">Русский язык</button>
+        ${subjects.map((key, index) => html`<button type="button" class="chip" data-subject="${key}" aria-pressed="${index === 0 ? 'true' : 'false'}">${site.subjects[key]}</button>`)}
       </div>
+      <p class="field-error" data-step1-error hidden></p>
     </fieldset>
 
     <fieldset class="quiz-step" data-step="2" hidden>
       <legend class="quiz-step-title" tabindex="-1">${stepTitle(segment, copy, 1)}</legend>
+      <p class="quiz-note" data-grade-note hidden></p>
       <div class="tutor-picks" role="group" aria-label="Репетитор" data-tutor-list></div>
       <p class="quiz-label" id="quiz-slot-label">Время урока <span class="quiz-label-note">по Москве (МСК), урок ${content.schedule.lessonMinutes} минут</span></p>
       <div class="slot-days" role="group" aria-labelledby="quiz-slot-label" data-slot-list></div>

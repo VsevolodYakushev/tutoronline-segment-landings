@@ -18,7 +18,7 @@ Origin: https://<PUBLIC_ORIGIN>
   "segment": "5-9",
   "variant": "a",
   "grade": 7,
-  "subject": "math",
+  "subjects": ["math", "physics"],
   "tutor": { "id": "roman-yurievich", "name": "Роман Юрьевич" },
   "slot": "2026-11-12T18:00:00+03:00",
   "name": "Мария",
@@ -43,9 +43,9 @@ Origin: https://<PUBLIC_ORIGIN>
 |------|-------------|----------------------|--------|
 | `segment` | да | ∈ {`1-4`,`5-9`,`10-11`} | `invalid_form` |
 | `variant` | да | ∈ {`a`,`b`} | `invalid_form` |
-| `grade` | да | Целое в диапазоне сегмента | `invalid_form` |
-| `subject` | да | ∈ {`math`,`russian`} | `invalid_form` |
-| `tutor.id` | да | Есть в `tutors.json` и ведёт `subject` (или `placeholder` для `russian`) | `invalid_form` |
+| `grade` | да | Целое 1–11 из `site.grades`; вне диапазона сегмента допускается (FR-038) | `invalid_form` |
+| `subjects` | да | Непустой массив ключей из `site.subjects`, без повторов, ≤ 5; первый — основной (FR-037) | `invalid_form` |
+| `tutor.id` | да | Есть в `tutors.json` и ведёт основной предмет (или `placeholder` для него) | `invalid_form` |
 | `tutor.name` | да | Сервер перезаписывает именем из `tutors.json` | — |
 | `slot` | да | ISO 8601; от now + 0 ч до now + 7 сут | `invalid_slot` |
 | `name` | да | 2–150 символов после trim | `invalid_form` |

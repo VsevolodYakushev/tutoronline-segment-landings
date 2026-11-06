@@ -97,7 +97,8 @@ export function isConfirmed(text) {
   } catch { return false; }
 }
 
-const SUBJECTS = { math: 'Математика', russian: 'Русский язык' };
+const SUBJECTS_FALLBACK = { math: 'Математика', russian: 'Русский язык' };
+export const MAX_SUBJECTS = 5;
 const BOOKING_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 symbols, no 0/O/1/I
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
 const WEEKDAYS = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
@@ -124,7 +125,8 @@ export function buildInfo(data) {
     return (clean || '—').slice(0, 120);
   };
   const pairs = [
-    ['Сегмент', data.segment], ['Класс', data.grade], ['Предмет', data.subject], ['Репетитор', data.tutor], ['Слот', data.slot],
+    ['Сегмент', data.segment], ['Класс', data.gradeOutside ? `${data.grade} (вне сегмента)` : data.grade],
+    ['Предмет', data.subject], ['Ещё предметы', data.extraSubjects], ['Репетитор', data.tutor], ['Слот', data.slot],
     ['Промокод', data.promoCode ? `${data.promoCode} (100%)` : ''],
     [`Скидка −${data.discount} ₽`, data.discountRequested ? 'запрошена' : 'нет'],
     ['Вариант', data.variant], ['Источник', data.utmSource], ['Объявление', data.utmContent],
@@ -141,11 +143,19 @@ export function leadFields(input, { content, now = Date.now(), bookingId }) {
   const segment = content.segments[input.segment];
   if (!segment) fail('invalid_form');
   if (input.variant !== 'a' && input.variant !== 'b') fail('invalid_form');
-  if (!Number.isInteger(input.grade) || !segment.grades.includes(input.grade)) fail('invalid_form');
-  if (!SUBJECTS[input.subject]) fail('invalid_form');
+  const labels = content.site?.subjects || SUBJECTS_FALLBACK;
+  // FR-038: any grade the site supports is accepted, even outside this segment's own range.
+  const grades = content.site?.grades?.length ? content.site.grades : segment.grades;
+  if (!Number.isInteger(input.grade) || !grades.includes(input.grade)) fail('invalid_form');
+  // FR-037: one or more subjects; the first one is the primary subject of the booking.
+  const asked = Array.isArray(input.subjects) ? input.subjects : [];
+  const subjects = [...new Set(asked.filter(subject => typeof subject === 'string' && labels[subject]))];
+  if (!subjects.length || subjects.length !== asked.length || subjects.length > MAX_SUBJECTS) fail('invalid_form');
+  if (subjects.some(subject => !(segment.subjects || []).includes(subject))) fail('invalid_form');
+  const primary = subjects[0];
   const tutorId = typeof input.tutor?.id === 'string' ? input.tutor.id : '';
   const tutor = content.tutors.find(item => item.id === tutorId);
-  if (!tutor || !(segment.tutorIds?.[input.subject] || []).includes(tutorId) || !tutor.subjects.includes(input.subject)) fail('invalid_form');
+  if (!tutor || !(segment.tutorIds?.[primary] || []).includes(tutorId) || !tutor.subjects.includes(primary)) fail('invalid_form');
 
   const slotMs = typeof input.slot === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(Z|[+-]\d{2}:\d{2})$/.test(input.slot) ? Date.parse(input.slot) : NaN;
   if (!Number.isFinite(slotMs) || slotMs < now - 60000 || slotMs > now + 7 * 86400000) fail('invalid_slot');
@@ -174,13 +184,14 @@ export function leadFields(input, { content, now = Date.now(), bookingId }) {
   landing.search = utm.toString();
 
   const info = buildInfo({
-    bookingId, segment: segment.id, grade: input.grade, subject: SUBJECTS[input.subject],
-    tutor: tutor.placeholder ? `подобрать (${SUBJECTS[input.subject].toLowerCase()})` : tutor.name,
+    bookingId, segment: segment.id, grade: input.grade, gradeOutside: !segment.grades.includes(input.grade),
+    subject: labels[primary], extraSubjects: subjects.slice(1).map(subject => labels[subject]).join(', '),
+    tutor: tutor.placeholder ? `подобрать (${labels[primary].toLowerCase()})` : tutor.name,
     slot: formatSlotMsk(input.slot), promoCode: content.offer.promoCode, discount: content.offer.discount,
     discountRequested: input.discountRequested === true && Boolean(email), variant: input.variant,
     utmSource: utm.get('utm_source'), utmContent: utm.get('utm_content'), consentAds: input.consent_ads === true,
   });
-  return { name, phone, email, subject: SUBJECTS[input.subject], landing: landing.href, info };
+  return { name, phone, email, subject: labels[primary], landing: landing.href, info };
 }
 
 // Inline <script>/<style> hashes are computed by build.mjs and stored in dist/manifest.json.

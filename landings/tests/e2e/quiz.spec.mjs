@@ -71,7 +71,7 @@ test('Q6: full booking — default grade, hold, wait caption, promo, ticket, pay
   expect(requests).toHaveLength(1);
   const body = requests[0];
   expect(body).toMatchObject({
-    segment: '5-9', grade: 7, subject: 'math', tutor: { id: 'amet-memetovich' }, name: 'Мария',
+    segment: '5-9', grade: 7, subjects: ['math'], tutor: { id: 'amet-memetovich' }, name: 'Мария',
     phone: '+7 (912) 345-67-89', email: 'maria@example.com', discountRequested: true, commitment: true, consent_pd: true,
     attribution: { utm_source: 'avito', utm_content: 'TEST1' },
   });
@@ -122,6 +122,9 @@ test('Q11: Russian shows the placeholder tutor and a neutral button', async ({ p
   await mockLead(page);
   await openForm(page);
   await page.click('[data-subject="russian"]');
+  await page.click('[data-subject="math"]');
+  await expect(page.locator('[data-subject="russian"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-subject="math"]')).toHaveAttribute('aria-pressed', 'false');
   await page.click('[data-action="next"]');
   await expect(page.locator('.tutor-pick')).toHaveCount(1);
   await expect(page.locator('.tutor-pick')).toContainText('Подберём репетитора по русскому');
@@ -196,4 +199,61 @@ test('fields wait with the form while the booking is being confirmed (FR-021)', 
   await expect(page.locator('#quiz-name')).toHaveAttribute('readonly', '');
   await expect(page.locator('#quiz-commitment')).toBeDisabled();
   await expect(page.locator('[data-ticket]')).toBeVisible();
+});
+
+test('several subjects: the first one drives tutors and the lead (FR-037)', async ({ page }) => {
+  const requests = await mockLead(page);
+  await openForm(page);
+  await expect(page.locator('[data-subject]')).toHaveCount(4); // 5-9: math, russian, physics, chemistry
+  await page.click('[data-subject="chemistry"]');
+  await expect(page.locator('[data-subject="math"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-subject="chemistry"]')).toHaveAttribute('aria-pressed', 'true');
+
+  await page.click('[data-action="next"]');
+  await expect(page.locator('.tutor-pick')).toHaveCount(3); // tutors of the primary subject (math)
+  await page.locator('.tutor-pick').first().click();
+  await page.locator('.slot').first().click();
+  await page.click('[data-action="next"]');
+  await fillContacts(page);
+  await page.click('[data-action="submit"]');
+  await expect(page.locator('[data-ticket]')).toBeVisible();
+  expect(requests[0].subjects).toEqual(['math', 'chemistry']);
+});
+
+test('the last subject cannot be unselected (FR-037)', async ({ page }) => {
+  await mockLead(page);
+  await openForm(page);
+  await page.click('[data-subject="math"]');
+  await expect(page.locator('[data-subject="math"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-step1-error]')).toContainText('хотя бы один предмет');
+});
+
+test('any grade 1–11 behind "другой класс" (FR-038)', async ({ page }) => {
+  const requests = await mockLead(page);
+  await openForm(page);
+  await expect(page.locator('[data-grades-other]')).toBeHidden();
+  await page.click('[data-grades-toggle]');
+  await expect(page.locator('[data-grades-other]')).toBeVisible();
+  await page.click('[data-grades-other] [data-grade="3"]');
+  await expect(page.locator('[data-grade="3"]')).toHaveAttribute('aria-pressed', 'true');
+
+  await page.click('[data-action="next"]');
+  await expect(page.locator('[data-grade-note]')).toContainText('за пределами этого набора');
+  await page.locator('.tutor-pick').first().click();
+  await page.locator('.slot').first().click();
+  await page.click('[data-action="next"]');
+  await fillContacts(page);
+  await page.click('[data-action="submit"]');
+  await expect(page.locator('[data-ticket]')).toBeVisible();
+  expect(requests[0].grade).toBe(3);
+});
+
+test('the marketplace line shows only for a known source (FR-035)', async ({ page }) => {
+  await mockLead(page);
+  await openForm(page, '?utm_source=avito&utm_content=TEST1');
+  await expect(page.locator('[data-source-note]')).toHaveText('Специально для пользователей Авито');
+  await page.context().clearCookies();
+  await page.evaluate(() => { try { localStorage.clear(); sessionStorage.clear(); } catch {} });
+  await openForm(page);
+  await expect(page.locator('[data-source-note]')).toBeHidden();
 });

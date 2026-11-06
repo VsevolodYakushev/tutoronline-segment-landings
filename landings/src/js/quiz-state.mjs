@@ -1,7 +1,9 @@
 // Quiz state machine (data-model §6) — pure, no DOM, unit-tested.
 import { isValidPhone } from './lib/phone-mask.mjs';
 
-export const SUBJECTS = { math: 'Математика', russian: 'Русский язык' };
+// Fallback labels; the real list comes from content (site.subjects) via the page config.
+export const SUBJECTS = { math: 'Математика', russian: 'Русский язык', physics: 'Физика', chemistry: 'Химия', highermath: 'Высшая математика' };
+export const MAX_SUBJECTS = 5;
 const NAME_RE = /^[\p{L}][\p{L}\s-]*$/u;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -27,21 +29,41 @@ export function teaches(tutor, subject) {
   return Boolean(tutor?.subjects?.includes(subject));
 }
 
+// FR-037: the first selected subject is the primary one — tutors, the button and the lead field follow it.
+export function primarySubject(state) {
+  return state.subjects?.[0] || null;
+}
+
+export function subjectLabel(subject, labels = SUBJECTS) {
+  return labels?.[subject] || SUBJECTS[subject] || subject || '';
+}
+
+// FR-038: the segment's own grades are shown first, any other 1–11 opens behind "другой класс".
+export function isSegmentGrade(segment, grade) {
+  return Boolean(segment.grades?.includes(grade));
+}
+
 export function tutorsForStep({ segment, subject, tutorsById, preferredId = null, max = 3 }) {
   const ids = segment.tutorIds?.[subject] || [];
   const ordered = preferredId && ids.includes(preferredId) ? [preferredId, ...ids.filter(id => id !== preferredId)] : ids;
   return ordered.map(id => tutorsById[id]).filter(tutor => teaches(tutor, subject)).slice(0, max);
 }
 
-export function createInitialState({ segment, params = new URLSearchParams(), tutorsById }) {
+export function createInitialState({ segment, params = new URLSearchParams(), tutorsById, grades = null, subjects = null }) {
+  const allowedGrades = grades?.length ? grades : segment.grades;
+  const allowedSubjects = subjects?.length ? subjects : (segment.subjects?.length ? segment.subjects : ['math']);
   const grade = Number(params.get('grade'));
-  const subject = params.get('subject') === 'russian' ? 'russian' : 'math';
+  const asked = String(params.get('subject') || '').split(',').map(value => value.trim()).filter(value => allowedSubjects.includes(value));
+  const picked = [...new Set(asked)].slice(0, MAX_SUBJECTS);
+  const chosen = picked.length ? picked : [allowedSubjects[0]];
   const tutorParam = params.get('tutor');
-  const tutorId = tutorParam && (segment.tutorIds?.[subject] || []).includes(tutorParam) && teaches(tutorsById[tutorParam], subject) ? tutorParam : null;
+  const tutorId = tutorParam && (segment.tutorIds?.[chosen[0]] || []).includes(tutorParam) && teaches(tutorsById[tutorParam], chosen[0]) ? tutorParam : null;
   return {
     step: 1,
-    grade: segment.grades.includes(grade) ? grade : segment.defaultGrade,
-    subject,
+    grade: allowedGrades.includes(grade) ? grade : segment.defaultGrade,
+    subjects: chosen,
+    allowedGrades,
+    allowedSubjects,
     tutorId,
     preferredTutorId: tutorId,
     slot: null,
@@ -59,8 +81,8 @@ export function createInitialState({ segment, params = new URLSearchParams(), tu
 export function stepErrors(state, step, now = Date.now()) {
   const errors = {};
   if (step === 1) {
-    if (!state.grade) errors.grade = 'Выберите класс';
-    if (!SUBJECTS[state.subject]) errors.subject = 'Выберите предмет';
+    if (!state.grade || !state.allowedGrades?.includes(state.grade)) errors.grade = 'Выберите класс';
+    if (!state.subjects?.length) errors.subject = 'Выберите хотя бы один предмет';
   } else if (step === 2) {
     if (!state.tutorId) errors.tutor = 'Выберите репетитора';
     if (!state.slot) errors.slot = state.notice === 'hold-expired' ? 'Время брони истекло — место освобождено, выберите время снова' : 'Выберите время урока';
@@ -78,13 +100,39 @@ export function isStepValid(state, step, now) {
   return Object.keys(stepErrors(state, step, now)).length === 0;
 }
 
+// Keeps the tutor only while they still teach the primary subject.
+function withSubjects(state, subjects, tutors) {
+  const primary = subjects[0];
+  const keepTutor = state.tutorId && tutors ? teaches(tutors[state.tutorId], primary) : false;
+  return {
+    ...state,
+    subjects,
+    tutorId: keepTutor ? state.tutorId : null,
+    slot: keepTutor ? state.slot : null,
+    holdExpiresAt: keepTutor ? state.holdExpiresAt : null,
+  };
+}
+
 export function reduce(state, action) {
   switch (action.type) {
     case 'grade': return { ...state, grade: action.grade };
     case 'subject': {
-      if (action.subject === state.subject) return state;
-      const keepTutor = state.tutorId && action.tutors ? teaches(action.tutors[state.tutorId], action.subject) : false;
-      return { ...state, subject: action.subject, tutorId: keepTutor ? state.tutorId : null, slot: keepTutor ? state.slot : null, holdExpiresAt: keepTutor ? state.holdExpiresAt : null };
+      // Toggle: at least one subject stays selected, at most MAX_SUBJECTS.
+      const current = state.subjects || [];
+      const allowed = state.allowedSubjects?.length ? state.allowedSubjects : Object.keys(SUBJECTS);
+      if (!allowed.includes(action.subject)) return state;
+      const has = current.includes(action.subject);
+      if (has && current.length === 1) return state;
+      if (!has && current.length >= MAX_SUBJECTS) return state;
+      const next = has ? current.filter(subject => subject !== action.subject) : [...current, action.subject];
+      if (next[0] === current[0]) return { ...state, subjects: next };
+      return withSubjects(state, next, action.tutors);
+    }
+    case 'subjects': {
+      const allowed = state.allowedSubjects?.length ? state.allowedSubjects : Object.keys(SUBJECTS);
+      const next = [...new Set((action.subjects || []).filter(subject => allowed.includes(subject)))].slice(0, MAX_SUBJECTS);
+      if (!next.length) return state;
+      return withSubjects(state, next, action.tutors);
     }
     case 'tutor':
       if (action.tutorId === state.tutorId) return state;

@@ -92,6 +92,10 @@
 .quiz-label-note{font-weight:400;color:var(--text-3)}
 
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips-other{margin-top:8px}
+.chip-more{border-style:dashed;color:var(--primary)}
+.chip-more[aria-expanded="true"]{border-style:solid;background:var(--secondary)}
+.quiz-note{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:var(--secondary);font-size:14px;line-height:1.4;color:var(--primary)}
 .chip{min-height:var(--tap-min);padding:0 18px;border:1.5px solid var(--border-soft);border-radius:22px;background:var(--surface);font-size:16px;color:var(--text-1);cursor:pointer;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background-color .15s ease;-webkit-tap-highlight-color:transparent}
 .chip:hover{border-color:#c9cbe0}
 .chip[aria-pressed="true"]{border-color:var(--accent);background:#fff5f4;box-shadow:0 0 0 2px var(--accent);transform:scale(1.03)}
@@ -224,6 +228,7 @@
 .hero{padding:12px 0 24px;background:linear-gradient(180deg,var(--secondary) 0%,var(--surface) 100%)}
 .hero-grid{display:flex;flex-direction:column;gap:14px}
 .hero-copy{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.hero-source{display:inline-flex;align-items:center;margin:0 0 10px;padding:5px 14px;border-radius:999px;background:var(--secondary);color:var(--primary);font-size:13px;font-weight:500;line-height:1.3}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:3px 12px 3px 3px;border:1px solid var(--border-soft);border-radius:999px;background:var(--surface);font-size:14px;color:var(--text-1)}
 .hero-badge-price{padding:4px 10px;border-radius:999px;background:var(--promo);font-weight:500}
 .hero-title{font-size:27px;font-weight:500;line-height:1.15;color:var(--text-1);text-wrap:balance}
@@ -347,14 +352,17 @@
 .topbar .timer.is-urgent{padding:0 6px;border-radius:6px;background:var(--accent);color:#fff}
 
 .sticker{position:absolute;z-index:2;display:inline-flex;align-items:center;justify-content:center;min-width:56px;height:30px;padding:0 10px;border-radius:15px;background:var(--promo);color:var(--text-1);font-size:14px;font-weight:500;white-space:nowrap;transform-origin:50% 100%;animation:sway 4.5s ease-in-out infinite}
-.sticker.is-discount{background:var(--accent);color:#fff}
+.sticker.is-discount{height:36px;min-width:72px;padding:0 14px;border:2px solid var(--accent);border-radius:18px;background:var(--surface);color:var(--accent);font-size:17px;font-weight:500;box-shadow:0 3px 12px rgba(51,51,51,.2)}
 @keyframes sway{0%,13%,100%{transform:rotate(0)}3%{transform:rotate(-4deg)}6%{transform:rotate(4deg)}9%{transform:rotate(-2deg)}}
 .hero-cta-wrap{position:relative}
-.hero-sticker{top:-12px;right:6px;height:24px;min-width:0;padding:0 8px;font-size:12px}
+.hero-sticker{top:-16px;right:4px}
+.hero-sticker.is-discount{height:34px;min-width:0;padding:0 12px;font-size:16px}
 
 .ladder{display:grid;gap:12px;margin-bottom:24px}
 .ladder-step{position:relative;display:flex;gap:14px;padding:18px 16px;border:1px solid var(--border-soft);border-radius:20px;background:var(--surface)}
 .ladder-step .sticker{top:-10px;right:14px}
+.ladder-step.is-extra{border:1px dashed var(--primary)}
+.sticker.is-extra{background:var(--secondary);color:var(--primary);box-shadow:none}
 .ladder-num{flex:none;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--secondary);color:var(--primary);font-weight:500}
 .ladder-body{display:flex;flex-direction:column;gap:6px;min-width:0}
 .ladder-title{font-size:17px;font-weight:500;line-height:1.3;padding-right:56px}
@@ -373,7 +381,7 @@
 .is-burned .ladder-timer-live{display:none}
 .ladder-step.is-burned{background:var(--background)}
 .ladder-step.is-burned .ladder-title{color:var(--text-3);text-decoration:line-through}
-.ladder-step.is-burned .sticker,.hero-sticker.is-burned{background:var(--text-3);animation:none}
+.ladder-step.is-burned .sticker,.hero-sticker.is-burned{border-color:var(--text-3);background:var(--text-3);color:#fff;box-shadow:none;animation:none}
 .price-discount.is-burned{text-decoration:line-through;color:var(--text-3)}
 .price-discount.is-burned .burned-label{text-decoration:none}
 

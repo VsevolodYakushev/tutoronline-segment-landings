@@ -78,3 +78,25 @@ test('Q19: without JavaScript the content is readable and the phone replaces the
   await expect(page.locator('[data-quiz]')).toBeHidden();
   await context.close();
 });
+
+test('the extra offer step is only on the 1-4 landing (FR-036)', async ({ page }) => {
+  await page.goto('/1-4/');
+  await expect(page.locator('.ladder-step.is-extra')).toHaveCount(1);
+  await expect(page.locator('.ladder-step.is-extra')).toContainText('Игровой формат');
+  for (const path of ['/5-9/', '/10-11/']) {
+    await page.goto(path);
+    await expect(page.locator('.ladder-step.is-extra')).toHaveCount(0);
+  }
+});
+
+test('the discount badge is bigger than the body text and does not sit on the accent button (FR-027)', async ({ page }) => {
+  await page.goto('/5-9/');
+  const badge = page.locator('.hero-sticker.is-discount');
+  const size = await badge.evaluate(node => {
+    const style = getComputedStyle(node);
+    return { font: parseFloat(style.fontSize), background: style.backgroundColor, border: style.borderTopWidth, color: style.color };
+  });
+  expect(size.font).toBeGreaterThanOrEqual(16);
+  expect(size.background).not.toBe('rgb(255, 82, 71)'); // not accent-on-accent any more
+  expect(parseFloat(size.border)).toBeGreaterThan(0);
+});

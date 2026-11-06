@@ -40,6 +40,14 @@ export function offer({ segment, content }) {
       </div>
       <span class="sticker is-discount" aria-hidden="true">−${o.discount} ₽</span>
     </li>
+    ${segment.offerExtra ? html`<li class="ladder-step is-extra">
+      <span class="ladder-num" aria-hidden="true">4</span>
+      <div class="ladder-body">
+        <h3 class="ladder-title">${segment.offerExtra.title}</h3>
+        <p class="ladder-text">${segment.offerExtra.text}</p>
+      </div>
+      ${segment.offerExtra.badge ? html`<span class="sticker is-extra" aria-hidden="true">${segment.offerExtra.badge}</span>` : ''}
+    </li>` : ''}
   </ol>
   <a class="btn btn-accent btn-l offer-cta" href="#form" data-cta="offer">Забронировать бесплатный урок</a>
 </div>

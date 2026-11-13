@@ -24,7 +24,9 @@
 <header class="site-header">
 <div class="wrap site-header-row">
   <a class="brand" href="#top" aria-label="TutorOnline — наверх"><img src="/tutoronline-segment-landings/assets/logo/logo_big.svg" width="140" height="36" alt="TutorOnline"></a>
-  <a class="header-phone" href="tel:+74997041212"><span class="ico ico-call" aria-hidden="true"></span><span class="header-phone-text">+7 (499) 704-12-12</span></a>
+  <!-- На узких экранах номер скрыт (.header-phone-text), остаётся только иконка,
+       поэтому у ссылки обязателен aria-label: иначе у неё нет доступного имени. -->
+  <a class="header-phone" href="tel:+74997041212" aria-label="Позвонить: +7 (499) 704-12-12"><span class="ico ico-call" aria-hidden="true"></span><span class="header-phone-text">+7 (499) 704-12-12</span></a>
 </div>
 </header>
 <main id="main">

@@ -1,11 +1,13 @@
 {
   "css": "/css/landing.4718c36e.css",
-  "js": "/js/455ebb1b/main.mjs",
+  "js": "/js/0b947ab8/main.mjs",
   "strict": false,
   "pages": {
     "1-4": {
       "path": "/1-4/",
-      "bytes": 43944,
+      "cluster": "1-4",
+      "intent": null,
+      "bytes": 44967,
       "inline": {
         "scripts": [
           "'sha256-OUmtX1oWAUtw4eFHRzBZLXIiL2smpWqz6dpDc9v0mVw='"
@@ -15,7 +17,9 @@
     },
     "10-11": {
       "path": "/10-11/",
-      "bytes": 44401,
+      "cluster": "10-11",
+      "intent": null,
+      "bytes": 46786,
       "inline": {
         "scripts": [
           "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
@@ -25,7 +29,237 @@
     },
     "5-9": {
       "path": "/5-9/",
-      "bytes": 44350,
+      "cluster": "5-9",
+      "intent": null,
+      "bytes": 46505,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    },
+    "deti-angliyskiy": {
+      "path": "/deti-angliyskiy/",
+      "cluster": "1-4",
+      "intent": "deti-angliyskiy",
+      "bytes": 44943,
+      "inline": {
+        "scripts": [
+          "'sha256-OUmtX1oWAUtw4eFHRzBZLXIiL2smpWqz6dpDc9v0mVw='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-angliyskiy": {
+      "path": "/ege-angliyskiy/",
+      "cluster": "10-11",
+      "intent": "ege-angliyskiy",
+      "bytes": 46873,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-biologiya": {
+      "path": "/ege-biologiya/",
+      "cluster": "10-11",
+      "intent": "ege-biologiya",
+      "bytes": 46810,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-fizika": {
+      "path": "/ege-fizika/",
+      "cluster": "10-11",
+      "intent": "ege-fizika",
+      "bytes": 43162,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-himiya": {
+      "path": "/ege-himiya/",
+      "cluster": "10-11",
+      "intent": "ege-himiya",
+      "bytes": 39419,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-informatika": {
+      "path": "/ege-informatika/",
+      "cluster": "10-11",
+      "intent": "ege-informatika",
+      "bytes": 46848,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-literatura": {
+      "path": "/ege-literatura/",
+      "cluster": "10-11",
+      "intent": "ege-literatura",
+      "bytes": 46835,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-matematika": {
+      "path": "/ege-matematika/",
+      "cluster": "10-11",
+      "intent": "ege-matematika",
+      "bytes": 47039,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-obshchiy": {
+      "path": "/ege-obshchiy/",
+      "cluster": "10-11",
+      "intent": "ege-obshchiy",
+      "bytes": 47002,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "ege-russkiy": {
+      "path": "/ege-russkiy/",
+      "cluster": "10-11",
+      "intent": "ege-russkiy",
+      "bytes": 46857,
+      "inline": {
+        "scripts": [
+          "'sha256-eVdySSEGD138t69UVsnglC8ZsS5s6eBcnmmd6KxWpGE='"
+        ],
+        "styles": []
+      }
+    },
+    "nachalka-dz": {
+      "path": "/nachalka-dz/",
+      "cluster": "1-4",
+      "intent": "nachalka-dz",
+      "bytes": 45173,
+      "inline": {
+        "scripts": [
+          "'sha256-OUmtX1oWAUtw4eFHRzBZLXIiL2smpWqz6dpDc9v0mVw='"
+        ],
+        "styles": []
+      }
+    },
+    "oge-angliyskiy": {
+      "path": "/oge-angliyskiy/",
+      "cluster": "5-9",
+      "intent": "oge-angliyskiy",
+      "bytes": 46347,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    },
+    "oge-biologiya": {
+      "path": "/oge-biologiya/",
+      "cluster": "5-9",
+      "intent": "oge-biologiya",
+      "bytes": 46284,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    },
+    "oge-fizika": {
+      "path": "/oge-fizika/",
+      "cluster": "5-9",
+      "intent": "oge-fizika",
+      "bytes": 42636,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    },
+    "oge-geometriya": {
+      "path": "/oge-geometriya/",
+      "cluster": "5-9",
+      "intent": "oge-geometriya",
+      "bytes": 46450,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    },
+    "oge-himiya": {
+      "path": "/oge-himiya/",
+      "cluster": "5-9",
+      "intent": "oge-himiya",
+      "bytes": 38893,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    },
+    "oge-informatika": {
+      "path": "/oge-informatika/",
+      "cluster": "5-9",
+      "intent": "oge-informatika",
+      "bytes": 46322,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    },
+    "oge-matematika": {
+      "path": "/oge-matematika/",
+      "cluster": "5-9",
+      "intent": "oge-matematika",
+      "bytes": 46484,
+      "inline": {
+        "scripts": [
+          "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"
+        ],
+        "styles": []
+      }
+    },
+    "oge-russkiy": {
+      "path": "/oge-russkiy/",
+      "cluster": "5-9",
+      "intent": "oge-russkiy",
+      "bytes": 46331,
       "inline": {
         "scripts": [
           "'sha256-28+uytJv12HYwHpaIxbSBVg3SgW7tTFp8OVz98SGDRI='"

@@ -1,12 +1,18 @@
 // Analytics (contracts/analytics-events.md): dataLayer always, Yandex Metrika when ymCounterId is set.
 // Personal data never leaves through events.
 const PII_KEYS = ['name', 'phone', 'email'];
-let base = { segment: null, variant: null, utm_source: null, utm_content: null };
+let base = { segment: null, intent: null, variant: null, utm_source: null, utm_content: null, utm_term: null };
 let counterId = null;
 const once = new Set();
 
-export function init({ segment, variant, firstTouch, ymCounterId }) {
-  base = { segment, variant, utm_source: firstTouch?.utm_source || null, utm_content: firstTouch?.utm_content || null };
+// FR-041: intent и utm_term едут в каждом событии — иначе воронку не разложить по ключевым словам.
+export function init({ segment, intent = null, variant, firstTouch, ymCounterId }) {
+  base = {
+    segment, intent, variant,
+    utm_source: firstTouch?.utm_source || null,
+    utm_content: firstTouch?.utm_content || null,
+    utm_term: firstTouch?.utm_term || null,
+  };
   counterId = ymCounterId || null;
 }
 
@@ -66,6 +72,6 @@ export function watchFormStart(doc = globalThis.document, env = globalThis) {
 
 export function resetForTests() {
   once.clear();
-  base = { segment: null, variant: null, utm_source: null, utm_content: null };
+  base = { segment: null, intent: null, variant: null, utm_source: null, utm_content: null, utm_term: null };
   counterId = null;
 }

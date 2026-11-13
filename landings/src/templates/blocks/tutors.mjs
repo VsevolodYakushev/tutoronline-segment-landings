@@ -14,7 +14,7 @@ const years = n => {
 const thousands = n => n.toLocaleString('ru-RU').replace(/ /g, ' ');
 const rating = n => n.toFixed(1).replace('.', ',');
 
-function card(tutor, cta) {
+function card(tutor, cta, pick = true) {
   const meta = [
     tutor.experienceYears != null && html`<span class="tut-m"><span class="tut-mv">${years(tutor.experienceYears)}</span><span class="tut-ml">опыт</span></span>`,
     tutor.lessonsCount != null && html`<span class="tut-m"><span class="tut-mv">${thousands(tutor.lessonsCount)}</span><span class="tut-ml">онлайн-уроков</span></span>`,
@@ -27,14 +27,22 @@ function card(tutor, cta) {
   <p class="tut-subjects">${tutor.subjectsLabel}</p>
 </div>
 ${meta.length ? html`<div class="tut-meta">${meta}</div>` : ''}
-<a class="tut-btn" href="#form" data-tutor="${tutor.id}" data-cta="tutor_card">${cta}</a>
+${pick ? html`<a class="tut-btn" href="#form" data-tutor="${tutor.id}" data-cta="tutor_card">${cta}</a>` : html`<a class="tut-btn" href="#form" data-cta="tutor_card">Записаться на пробный урок</a>`}
 </article>`;
 }
 
-export function tutors({ segment, tutorsById }) {
+const real = (ids, tutorsById) => (ids || []).map(id => tutorsById[id]).filter(tutor => tutor && !tutor.placeholder);
+
+export function tutors({ segment, intent = null, tutorsById }) {
   const text = TEXT[segment.audience] || TEXT.parent;
-  const list = (segment.tutorIds?.math || []).map(id => tutorsById[id]).filter(Boolean);
+  const subject = intent?.defaultSubjects?.[0] || 'math';
+  // По предмету интента показываем его репетиторов. Если за предметом только карточка
+  // подбора, витрину заполняем математиками, но без кнопки «хочу к этому репетитору»:
+  // иначе клик переключил бы предмет брони на математику.
+  const own = real(segment.tutorIds?.[subject], tutorsById);
+  const list = own.length ? own : real(segment.tutorIds?.math, tutorsById);
   if (!list.length) return '';
+  const pick = own.length > 0;
   return html`<section id="tutors" class="sec tutors-sec" aria-labelledby="tutors-title">
 <div class="wrap">
   <div class="sec-head">
@@ -42,7 +50,7 @@ export function tutors({ segment, tutorsById }) {
     <p class="lead">${segment.tutorsBlock?.lead || text.lead}</p>
   </div>
   <div class="tut-track" tabindex="0" role="region" aria-label="Репетиторы">
-    ${list.map(tutor => card(tutor, text.cta))}
+    ${list.map(tutor => card(tutor, text.cta, pick))}
   </div>
 </div>
 </section>`;

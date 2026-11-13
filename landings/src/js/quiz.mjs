@@ -45,7 +45,7 @@ export function init(ctx) {
   const root = document.querySelector('[data-quiz]');
   if (!root) return;
   const { config, visitor, analytics } = ctx;
-  const { segment, offer, schedule, site } = config;
+  const { segment, intent, offer, schedule, site } = config;
   const words = WORDS[segment.audience] || WORDS.parent;
   const tutorsById = Object.fromEntries(config.tutors.map(tutor => [tutor.id, tutor]));
   const draftKey = `tquiz_${offer.storageVersion}_${segment.id}`;
@@ -76,7 +76,7 @@ export function init(ctx) {
   const fields = Object.fromEntries(Object.entries(FIELD_IDS).map(([name, id]) => [name, document.getElementById(id)]));
   attachPhoneMask(fields.phone);
 
-  let state = createInitialState({ segment, params: new URLSearchParams(location.search), tutorsById, grades: site.grades, subjects: segment.subjects });
+  let state = createInitialState({ segment, intent, params: new URLSearchParams(location.search), tutorsById, grades: site.grades, subjects: segment.subjects });
   try {
     const draft = JSON.parse(sessionStorage.getItem(draftKey) || 'null');
     if (draft && typeof draft === 'object') {
@@ -460,7 +460,14 @@ export function init(ctx) {
     if (!tutorsById[tutorId] || state.status === 'ticket') return;
     track('lp_tutor_select', { tutor_id: tutorId, origin: 'tutors_block' });
     markStarted('tutor_card');
-    const kept = ['math', ...state.subjects.filter(subject => subject !== 'math')];
+    // Основным делаем предмет, который этот репетитор действительно ведёт:
+    // раньше здесь была жёстко зашита математика, и на лендинге по другому предмету
+    // клик по карточке подменил бы предмет брони.
+    const taught = tutorsById[tutorId].subjects || [];
+    const promote = state.subjects.find(subject => taught.includes(subject))
+      || taught.find(subject => (state.allowedSubjects || []).includes(subject))
+      || state.subjects[0];
+    const kept = [promote, ...state.subjects.filter(subject => subject !== promote)];
     state = { ...reduce(reduce(state, { type: 'subjects', subjects: kept, tutors: tutorsById }), { type: 'tutor', tutorId }), preferredTutorId: tutorId, step: 2 };
     save();
     render();

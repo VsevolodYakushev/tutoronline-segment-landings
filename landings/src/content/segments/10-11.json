@@ -45,6 +45,9 @@
     "russian": [
       "russian-match"
     ],
+    "literature": [
+      "literature-match"
+    ],
     "physics": [
       "roman-yurievich",
       "amet-memetovich",
@@ -52,6 +55,15 @@
     ],
     "chemistry": [
       "rustam-ravilevich"
+    ],
+    "biology": [
+      "biology-match"
+    ],
+    "informatics": [
+      "informatics-match"
+    ],
+    "english": [
+      "english-match"
     ],
     "highermath": [
       "roman-yurievich",
@@ -61,8 +73,12 @@
   "subjects": [
     "math",
     "russian",
+    "literature",
     "physics",
     "chemistry",
+    "biology",
+    "informatics",
+    "english",
     "highermath"
   ],
   "extraBlocks": [

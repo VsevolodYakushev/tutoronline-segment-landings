@@ -374,20 +374,20 @@ Task: "Варианты b в landings/src/content/segments/*.json"
 ### Контент-модель и сборка
 
 - [X] T081 [US1] Словарь предметов до 10 в `landings/src/content/site.json`: добавлены `geometry`, `literature`, `biology`, `informatics`, `english` к существующим `math`, `russian`, `physics`, `chemistry`, `highermath`
-- [ ] T082 [US2] Карточки подбора в `landings/src/content/tutors.json` по образцу `russian-match` (`placeholder: true`, `photo: null`, метрики `null`): `english-match`, `biology-match`, `informatics-match`, `literature-match`; математикам добавлена `geometry` в `subjects` и в `subjectsLabel`
-- [ ] T083 [US1] Кластеры `landings/src/content/segments/*.json`: `subjects` — полный список чипов фильтра кластера, `tutorIds` — по каждому новому предмету
-- [ ] T084 [US1] 19 интентов в `landings/src/content/intents/*.json`: `key`, `cluster`, `label`, `defaultGrade`, `defaultSubjects`, `hero` (`title`, `subtitle`, `offerBadge`), `meta`, необязательный `heroTutorIds`
-- [ ] T085 [US2] Карта ключей `landings/src/content/keywords.json`: 38 записей `utm_term` → `{ intent, grade? }`; только идентификаторы, никаких текстов
-- [ ] T086 [US1] `landings/build.mjs`: `loadContent` читает `intents/` и `keywords.json`; рендер 22 страниц (19 интентов + 3 кластерных) в `dist/<key>/index.html`; `manifest.pages` получает `cluster` и `intent`
-- [ ] T087 [US1] `landings/build.mjs` → `validate()`: снять устаревшее правило «репетитор должен вести math или russian» (блокирует английского и биолога), заменить на «хотя бы один предмет из `site.subjects`»; проверки интентов (уникальный слаг, существующий кластер, `defaultGrade` из `site.grades`, непустой `defaultSubjects` ⊆ `cluster.subjects`, у каждого предмета есть репетитор или карточка подбора, непустые `hero` и `meta`); стоп-слова FR-007 по текстам интентов; карта ключей ссылается на существующие интенты без дублей; в строгом режиме — уникальность заголовков между интентами
+- [X] T082 [US2] Карточки подбора в `landings/src/content/tutors.json` по образцу `russian-match` (`placeholder: true`, `photo: null`, метрики `null`): `english-match`, `biology-match`, `informatics-match`, `literature-match`; математикам добавлена `geometry` в `subjects` и в `subjectsLabel`
+- [X] T083 [US1] Кластеры `landings/src/content/segments/*.json`: `subjects` — полный список чипов фильтра кластера, `tutorIds` — по каждому новому предмету
+- [X] T084 [US1] 19 интентов в `landings/src/content/intents/*.json`: `key`, `cluster`, `label`, `defaultGrade`, `defaultSubjects`, `hero` (`title`, `subtitle`, `offerBadge`), `meta`, необязательный `heroTutorIds`
+- [X] T085 [US2] Карта ключей `landings/src/content/keywords.json`: 38 записей `utm_term` → `{ intent, grade? }`; только идентификаторы, никаких текстов
+- [X] T086 [US1] `landings/build.mjs`: `loadContent` читает `intents/` и `keywords.json`; рендер 22 страниц (19 интентов + 3 кластерных) в `dist/<key>/index.html`; `manifest.pages` получает `cluster` и `intent`
+- [X] T087 [US1] `landings/build.mjs` → `validate()`: снять устаревшее правило «репетитор должен вести math или russian» (блокирует английского и биолога), заменить на «хотя бы один предмет из `site.subjects`»; проверки интентов (уникальный слаг, существующий кластер, `defaultGrade` из `site.grades`, непустой `defaultSubjects` ⊆ `cluster.subjects`, у каждого предмета есть репетитор или карточка подбора, непустые `hero` и `meta`); стоп-слова FR-007 по текстам интентов; карта ключей ссылается на существующие интенты без дублей; в строгом режиме — уникальность заголовков между интентами
 
 ### Шаблоны и фильтры
 
-- [ ] T088 [US1] `landings/src/templates/page.mjs`: `renderPage({ intent, cluster, … })`, `data-intent` на `<html>`, `pageConfig` отдаёт интент и кластер; ключ cookie в инлайн-скрипте головы — по кластеру, иначе счётчик мест и таймер сбрасываются при переходе между интентами одного кластера
-- [ ] T089 [US1] `landings/src/templates/blocks/hero.mjs`: заголовок, подзаголовок и бейдж из `intent.hero`; при предмете с одной карточкой подбора подпись под фото — «Пробные онлайн-уроки ведут преподаватели TutorOnline» без имён
-- [ ] T090 [US1] `landings/src/templates/blocks/quiz.mjs`: чипы классов из `cluster.grades` с нажатым `intent.defaultGrade`, чипы предметов из `cluster.subjects` с нажатыми `intent.defaultSubjects`; «Другой класс» по-прежнему открывает остальные из 1–11
-- [ ] T091 [US2] `landings/src/templates/blocks/tutors.mjs`: секция берёт репетиторов по основному предмету интента с откатом на математику — сейчас жёстко `tutorIds.math`
-- [ ] T092 [US1] `landings/src/js/quiz-state.mjs`: `createInitialState` берёт умолчания из интента, `?grade` и `?subject` перекрывают их; остальная машина состояний без изменений
+- [X] T088 [US1] `landings/src/templates/page.mjs`: `renderPage({ intent, cluster, … })`, `data-intent` на `<html>`, `pageConfig` отдаёт интент и кластер; ключ cookie в инлайн-скрипте головы — по кластеру, иначе счётчик мест и таймер сбрасываются при переходе между интентами одного кластера
+- [X] T089 [US1] `landings/src/templates/blocks/hero.mjs`: заголовок, подзаголовок и бейдж из `intent.hero`; при предмете с одной карточкой подбора подпись под фото — «Пробные онлайн-уроки ведут преподаватели TutorOnline» без имён
+- [X] T090 [US1] `landings/src/templates/blocks/quiz.mjs`: чипы классов из `cluster.grades` с нажатым `intent.defaultGrade`, чипы предметов из `cluster.subjects` с нажатыми `intent.defaultSubjects`; «Другой класс» по-прежнему открывает остальные из 1–11
+- [X] T091 [US2] `landings/src/templates/blocks/tutors.mjs`: секция берёт репетиторов по основному предмету интента с откатом на математику — сейчас жёстко `tutorIds.math`
+- [X] T092 [US1] `landings/src/js/quiz-state.mjs`: `createInitialState` берёт умолчания из интента, `?grade` и `?subject` перекрывают их; остальная машина состояний без изменений
 
 ### Сервер
 

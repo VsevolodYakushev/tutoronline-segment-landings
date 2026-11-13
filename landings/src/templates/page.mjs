@@ -12,14 +12,22 @@ function metrika(id) {
   return html`<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(${raw(Number(id))},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});</script>`;
 }
 
-export function pageConfig({ segment, content, tutorsById }) {
-  const ids = new Set([...(segment.heroTutorIds || []), ...Object.values(segment.tutorIds || {}).flat()]);
+export function pageConfig({ segment, intent = null, content, tutorsById }) {
+  const ids = new Set([
+    ...(intent?.heroTutorIds || segment.heroTutorIds || []),
+    ...Object.values(segment.tutorIds || {}).flat(),
+  ]);
   return {
     segment: {
       id: segment.id, path: segment.path, grades: segment.grades, defaultGrade: segment.defaultGrade,
       audience: segment.audience, tutorIds: segment.tutorIds, topbar: segment.topbar, quizVariant: segment.quizVariant || null,
       subjects: segment.subjects || ['math'],
     },
+    // FR-040: умолчания фильтра приезжают из интента, ?grade и ?subject их перекрывают
+    intent: intent ? {
+      key: intent.key, label: intent.label,
+      defaultGrade: intent.defaultGrade, defaultSubjects: intent.defaultSubjects,
+    } : null,
     offer: content.offer,
     schedule: content.schedule,
     tutors: [...ids].map(id => tutorsById[id]).filter(Boolean),
@@ -31,15 +39,16 @@ export function pageConfig({ segment, content, tutorsById }) {
 }
 
 export function renderPage(ctx) {
-  const { segment, content, assets } = ctx;
+  const { segment, intent = null, content, assets } = ctx;
   const config = JSON.stringify(pageConfig(ctx)).replace(/</g, '\\u003c');
   const extra = new Set(segment.extraBlocks || []);
-  return `<!doctype html>\n${html`<html lang="ru" data-segment="${segment.id}" data-theme="${segment.theme || 'light'}">
+  const meta = intent?.meta || segment.meta;
+  return `<!doctype html>\n${html`<html lang="ru" data-segment="${segment.id}" data-intent="${intent?.key || ''}" data-theme="${segment.theme || 'light'}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${segment.meta?.title || content.site.brand}</title>
-<meta name="description" content="${segment.meta?.description || ''}">
+<title>${meta?.title || content.site.brand}</title>
+<meta name="description" content="${meta?.description || ''}">
 <meta name="theme-color" content="#5756b3">
 <meta name="format-detection" content="telephone=no">
 <link rel="preload" href="/assets/fonts/graphik-500.woff2" as="font" type="font/woff2" crossorigin>

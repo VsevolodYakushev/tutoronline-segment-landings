@@ -2,50 +2,74 @@
   {
     "id": "roman-yurievich", "name": "Роман Юрьевич", "nameGenitive": "Романа Юрьевича", "gender": "m",
     "photo": { "webp": "roman-yurievich", "avif": "roman-yurievich", "focal": "center 30%" },
-    "subjects": ["math", "physics", "highermath"], "subjectsLabel": "Математика, физика, высшая математика",
+    "subjects": ["math", "geometry", "physics", "highermath"], "subjectsLabel": "Математика, геометрия, физика, высшая математика",
     "experienceYears": 15, "lessonsCount": 13678, "rating": 5.0, "verified": true, "placeholder": false
   },
   {
     "id": "amet-memetovich", "name": "Амет Меметович", "nameGenitive": "Амета Меметовича", "gender": "m",
     "photo": { "webp": "amet-memetovich", "avif": "amet-memetovich", "focal": "center 30%" },
-    "subjects": ["math", "physics"], "subjectsLabel": "Математика, физика",
+    "subjects": ["math", "geometry", "physics"], "subjectsLabel": "Математика, геометрия, физика",
     "experienceYears": 4, "lessonsCount": 6415, "rating": 5.0, "verified": true, "placeholder": false
   },
   {
     "id": "galina-vladimirovna", "name": "Галина Владимировна", "nameGenitive": "Галины Владимировны", "gender": "f",
     "photo": { "webp": "galina-vladimirovna", "avif": "galina-vladimirovna", "focal": "center 30%" },
-    "subjects": ["math"], "subjectsLabel": "Математика",
+    "subjects": ["math", "geometry"], "subjectsLabel": "Математика, геометрия",
     "experienceYears": 39, "lessonsCount": 1217, "rating": 4.7, "verified": true, "placeholder": false
   },
   {
     "id": "evgenia-nikolaevna", "name": "Евгения Николаевна", "nameGenitive": "Евгении Николаевны", "gender": "f",
     "photo": { "webp": "evgenia-nikolaevna", "avif": "evgenia-nikolaevna", "focal": "center 30%" },
-    "subjects": ["math", "highermath"], "subjectsLabel": "Математика, высшая математика",
+    "subjects": ["math", "geometry", "highermath"], "subjectsLabel": "Математика, геометрия, высшая математика",
     "experienceYears": 22, "lessonsCount": 1059, "rating": 4.6, "verified": true, "placeholder": false
   },
   {
     "id": "rustam-ravilevich", "name": "Рустам Равилевич", "nameGenitive": "Рустама Равилевича", "gender": "m",
     "photo": { "webp": "rustam-ravilevich", "avif": "rustam-ravilevich", "focal": "center 30%" },
-    "subjects": ["math", "physics", "chemistry"], "subjectsLabel": "Математика, физика, химия",
+    "subjects": ["math", "geometry", "physics", "chemistry"], "subjectsLabel": "Математика, геометрия, физика, химия",
     "experienceYears": 7, "lessonsCount": 2331, "rating": 4.6, "verified": true, "placeholder": false
   },
   {
     "id": "pavel-stepanovich", "name": "Павел Степанович", "nameGenitive": "Павла Степановича", "gender": "m",
     "photo": { "webp": "pavel-stepanovich", "avif": "pavel-stepanovich", "focal": "center 18%" },
-    "subjects": ["math"], "subjectsLabel": "Преподаватель математики",
+    "subjects": ["math", "geometry"], "subjectsLabel": "Преподаватель математики и геометрии",
     "experienceYears": null, "lessonsCount": null, "rating": null, "verified": true, "placeholder": false
   },
   {
     "id": "inna-ivanovna", "name": "Инна Ивановна", "nameGenitive": "Инны Ивановны", "gender": "f",
     "photo": { "webp": "inna-ivanovna", "avif": "inna-ivanovna", "focal": "center 18%" },
-    "subjects": ["math"], "subjectsLabel": "Преподаватель математики",
+    "subjects": ["math", "geometry"], "subjectsLabel": "Преподаватель математики и геометрии",
     "experienceYears": null, "lessonsCount": null, "rating": null, "verified": true, "placeholder": false
   },
   {
     "id": "ekaterina-olegovna", "name": "Екатерина Олеговна", "nameGenitive": "Екатерины Олеговны", "gender": "f",
     "photo": { "webp": "ekaterina-olegovna", "avif": "ekaterina-olegovna", "focal": "center 18%" },
-    "subjects": ["math"], "subjectsLabel": "Преподаватель математики",
+    "subjects": ["math", "geometry"], "subjectsLabel": "Преподаватель математики и геометрии",
     "experienceYears": null, "lessonsCount": null, "rating": null, "verified": true, "placeholder": false
+  },
+  {
+    "id": "literature-match", "name": "Подберём репетитора по литературе", "nameGenitive": "", "gender": null,
+    "photo": null,
+    "subjects": ["literature"], "subjectsLabel": "Литература",
+    "experienceYears": null, "lessonsCount": null, "rating": null, "verified": false, "placeholder": true
+  },
+  {
+    "id": "biology-match", "name": "Подберём репетитора по биологии", "nameGenitive": "", "gender": null,
+    "photo": null,
+    "subjects": ["biology"], "subjectsLabel": "Биология",
+    "experienceYears": null, "lessonsCount": null, "rating": null, "verified": false, "placeholder": true
+  },
+  {
+    "id": "informatics-match", "name": "Подберём репетитора по информатике", "nameGenitive": "", "gender": null,
+    "photo": null,
+    "subjects": ["informatics"], "subjectsLabel": "Информатика",
+    "experienceYears": null, "lessonsCount": null, "rating": null, "verified": false, "placeholder": true
+  },
+  {
+    "id": "english-match", "name": "Подберём репетитора по английскому", "nameGenitive": "", "gender": null,
+    "photo": null,
+    "subjects": ["english"], "subjectsLabel": "Английский язык",
+    "experienceYears": null, "lessonsCount": null, "rating": null, "verified": false, "placeholder": true
   },
   {
     "id": "russian-match", "name": "Подберём репетитора по русскому", "nameGenitive": "", "gender": null,

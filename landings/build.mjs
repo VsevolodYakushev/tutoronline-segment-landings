@@ -9,6 +9,7 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const CSS_ORDER = ['tokens.css', 'base.css', 'components.css', 'themes.css'];
 const SEGMENT_ID = /^\d+-\d+$/;
 const TUTOR_ID = /^[a-z0-9-]+$/;
+const SLUG = /^[a-z0-9-]+$/;
 
 export class BuildError extends Error {
   constructor(errors) { super(`Build failed:\n - ${errors.join('\n - ')}`); this.errors = errors; }
@@ -22,18 +23,35 @@ function readJson(file) {
   catch (error) { throw new BuildError([`${path.basename(file)}: ${error.message}`]); }
 }
 
+function readDir(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter(file => file.endsWith('.json')).sort()
+    .map(file => ({ file, ...readJson(path.join(dir, file)) }));
+}
+
 export function loadContent(contentDir) {
-  const segmentsDir = path.join(contentDir, 'segments');
-  const segments = fs.readdirSync(segmentsDir).filter(file => file.endsWith('.json')).sort()
-    .map(file => ({ file, ...readJson(path.join(segmentsDir, file)) }));
+  const keywordsFile = path.join(contentDir, 'keywords.json');
   return {
     offer: readJson(path.join(contentDir, 'offer.json')),
     schedule: readJson(path.join(contentDir, 'schedule.json')),
     site: readJson(path.join(contentDir, 'site.json')),
     tutors: readJson(path.join(contentDir, 'tutors.json')),
     stopwords: readJson(path.join(contentDir, 'stopwords.json')),
-    segments,
+    segments: readDir(path.join(contentDir, 'segments')),
+    intents: readDir(path.join(contentDir, 'intents')),
+    keywords: fs.existsSync(keywordsFile) ? (readJson(keywordsFile).keywords || {}) : {},
   };
+}
+
+// Страницы сборки: кластер без интента (прямой трафик) и по одной на каждый интент.
+export function pagesOf(content) {
+  const byCluster = new Map(content.segments.map(segment => [segment.id, segment]));
+  return [
+    ...content.segments.map(segment => ({ id: segment.id, path: segment.path, segment, intent: null })),
+    ...(content.intents || []).map(intent => ({
+      id: intent.key, path: `/${intent.key}/`, intent, segment: byCluster.get(intent.cluster),
+    })).filter(page => page.segment),
+  ];
 }
 
 function collectStrings(value, trail, out) {
@@ -55,7 +73,7 @@ export function validate(content, { strict = false } = {}) {
   for (const tutor of tutors) {
     if (!TUTOR_ID.test(tutor.id || '')) errors.push(`tutors.json: неверный id «${tutor.id}» (нужно [a-z0-9-]+)`);
     if (byId.has(tutor.id)) errors.push(`tutors.json: повторяющийся id «${tutor.id}»`);
-    if (!tutor.subjects?.some(subject => subject === 'math' || subject === 'russian')) errors.push(`tutors.json: «${tutor.id}» должен вести math или russian`);
+    if (!tutor.subjects?.some(subject => content.site.subjects?.[subject])) errors.push(`tutors.json: «${tutor.id}» должен вести хотя бы один предмет из site.json → subjects`);
     byId.set(tutor.id, tutor);
   }
 
@@ -91,6 +109,52 @@ export function validate(content, { strict = false } = {}) {
       if (!segment.hero?.a?.subtitle) errors.push(`${where}: hero.a.subtitle обязателен`);
     }
   }
+
+  // Интенты: заголовок и фильтры под ключевое слово (FR-039…FR-042)
+  const byCluster = new Map(segments.map(segment => [segment.id, segment]));
+  const intentKeys = new Set();
+  const titles = new Map();
+  for (const intent of content.intents || []) {
+    const where = `intents/${intent.file}`;
+    if (!SLUG.test(intent.key || '')) errors.push(`${where}: key — слаг [a-z0-9-]+`);
+    else if (intent.file !== `${intent.key}.json`) errors.push(`${where}: имя файла должно совпадать с key «${intent.key}»`);
+    if (intentKeys.has(intent.key)) errors.push(`${where}: повторяющийся key «${intent.key}»`);
+    if (byCluster.has(intent.key)) errors.push(`${where}: key «${intent.key}» занят сегментом — адреса столкнутся`);
+    intentKeys.add(intent.key);
+
+    const cluster = byCluster.get(intent.cluster);
+    if (!cluster) { errors.push(`${where}: неизвестный кластер «${intent.cluster}»`); continue; }
+    const grades = content.site.grades?.length ? content.site.grades : cluster.grades;
+    if (!grades.includes(intent.defaultGrade)) errors.push(`${where}: defaultGrade ${intent.defaultGrade} вне site.json → grades`);
+    if (!intent.defaultSubjects?.length) errors.push(`${where}: defaultSubjects — непустой массив`);
+    for (const subject of intent.defaultSubjects || []) {
+      if (!(cluster.subjects || []).includes(subject)) errors.push(`${where}: предмет «${subject}» не входит в subjects кластера ${cluster.id} — фильтр не совпадёт с заголовком`);
+      else if (!(cluster.tutorIds?.[subject] || []).length) errors.push(`${where}: для предмета «${subject}» нет ни одного репетитора в tutorIds кластера ${cluster.id}`);
+    }
+    for (const id of intent.heroTutorIds || []) if (!byId.has(id)) errors.push(`${where}: heroTutorIds ссылается на неизвестного репетитора «${id}»`);
+    if (!intent.hero?.title) errors.push(`${where}: hero.title обязателен`);
+    if (!intent.hero?.subtitle) errors.push(`${where}: hero.subtitle обязателен`);
+    if (!intent.meta?.title) errors.push(`${where}: meta.title обязателен`);
+    for (const [trail, text] of collectStrings(intent, '', [])) {
+      const lower = text.toLowerCase();
+      for (const word of stopwords) if (lower.includes(word)) errors.push(`${where}: стоп-слово «${word}» в ${trail} — тексты не обещают результат (FR-007)`);
+    }
+    if (strict && intent.hero?.title) {
+      const owner = titles.get(intent.hero.title);
+      if (owner) errors.push(`${where}: заголовок дословно повторяет ${owner} — интенты должны различаться`);
+      else titles.set(intent.hero.title, where);
+    }
+  }
+
+  // Карта ключевых слов: только идентификаторы, текста в ней нет (FR-043)
+  for (const [slug, entry] of Object.entries(content.keywords || {})) {
+    const where = `keywords.json → ${slug}`;
+    if (!SLUG.test(slug)) errors.push(`${where}: ключ — слаг [a-z0-9-]+`);
+    if (!entry || typeof entry !== 'object') { errors.push(`${where}: значение — объект { intent, grade? }`); continue; }
+    if (!intentKeys.has(entry.intent)) errors.push(`${where}: неизвестный интент «${entry.intent}»`);
+    if (entry.grade !== undefined && !(content.site.grades || []).includes(entry.grade)) errors.push(`${where}: grade ${entry.grade} вне site.json → grades`);
+  }
+
   return errors;
 }
 
@@ -139,17 +203,25 @@ export async function build({ root = ROOT, contentDir = path.join(root, 'src', '
   const tutorsById = Object.fromEntries(content.tutors.map(tutor => [tutor.id, tutor]));
   const manifest = { css: `/${cssFile}`, js: `/${jsEntry}`, strict, pages: {} };
   const renderErrors = [];
-  for (const segment of content.segments) {
-    const page = String(renderPage({ segment, content, tutorsById, assets: { css: `/${cssFile}`, js: `/${jsEntry}` } }));
-    if (/<[^>]+\sstyle=/i.test(page)) renderErrors.push(`segments/${segment.file}: шаблон выдаёт атрибут style= (запрещён CSP)`);
-    const target = path.join(outDir, segment.id, 'index.html');
+  const pages = pagesOf(content);
+  for (const { id, path: pagePath, segment, intent } of pages) {
+    const page = String(renderPage({ segment, intent, content, tutorsById, assets: { css: `/${cssFile}`, js: `/${jsEntry}` } }));
+    const where = intent ? `intents/${intent.file}` : `segments/${segment.file}`;
+    if (/<[^>]+\sstyle=/i.test(page)) renderErrors.push(`${where}: шаблон выдаёт атрибут style= (запрещён CSP)`);
+    const target = path.join(outDir, id, 'index.html');
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, page);
-    manifest.pages[segment.id] = { path: segment.path, bytes: Buffer.byteLength(page), inline: inlineHashes(page) };
+    manifest.pages[id] = {
+      path: pagePath, cluster: segment.id, intent: intent?.key || null,
+      bytes: Buffer.byteLength(page), inline: inlineHashes(page),
+    };
   }
+  // Карта ключевых слов в манифест не попадает: сервер читает её из src/content на лету,
+  // иначе правка связки ключ→интент требовала бы пересборки.
   if (renderErrors.length) throw new BuildError(renderErrors);
   fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
-  log(`Built ${content.segments.length} pages${strict ? ' (strict)' : ''}: ${content.segments.map(segment => segment.path).join(', ')} → ${path.relative(root, outDir) || outDir}`);
+  const intentCount = pages.filter(page => page.intent).length;
+  log(`Built ${pages.length} pages${strict ? ' (strict)' : ''}: ${content.segments.length} кластерных + ${intentCount} интентов → ${path.relative(root, outDir) || outDir}`);
   return manifest;
 }
 

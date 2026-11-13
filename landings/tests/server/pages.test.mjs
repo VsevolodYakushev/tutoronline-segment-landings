@@ -55,7 +55,7 @@ test('pages carry a CSP that allows exactly their own inline scripts (T069)', as
   assert.match(policy, /(^|; )base-uri 'none'(;|$)/);
   assert.match(policy, /(^|; )object-src 'none'(;|$)/);
   // every inline script of the page is allowed by its hash, so the page still runs under this CSP
-  const inline = [...page.matchAll(/<script(?![^>]*src=)(?![^>]*type="application\/json")[^>]*>([\s\S]*?)<\/script>/g)];
+  const inline = [...page.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="application\/json")[^>]*>([\s\S]*?)<\/script>/g)];
   assert.ok(inline.length >= 1);
   for (const [, code] of inline) {
     assert.ok(policy.includes(`'sha256-${createHash('sha256').update(code).digest('base64')}'`), 'inline script hash is in script-src');

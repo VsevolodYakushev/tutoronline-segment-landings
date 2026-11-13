@@ -45,6 +45,13 @@
       "evgenia-nikolaevna",
       "rustam-ravilevich"
     ],
+    "geometry": [
+      "roman-yurievich",
+      "amet-memetovich",
+      "galina-vladimirovna",
+      "evgenia-nikolaevna",
+      "rustam-ravilevich"
+    ],
     "russian": [
       "russian-match"
     ],
@@ -55,13 +62,26 @@
     ],
     "chemistry": [
       "rustam-ravilevich"
+    ],
+    "biology": [
+      "biology-match"
+    ],
+    "informatics": [
+      "informatics-match"
+    ],
+    "english": [
+      "english-match"
     ]
   },
   "subjects": [
     "math",
+    "geometry",
     "russian",
     "physics",
-    "chemistry"
+    "chemistry",
+    "biology",
+    "informatics",
+    "english"
   ],
   "extraBlocks": [
     "oge"

@@ -28,11 +28,14 @@ function checkbox({ id, name, required, children }) {
 </div>`;
 }
 
-export function quiz({ segment, content }) {
+export function quiz({ segment, intent = null, content }) {
   const copy = COPY[segment.audience] || COPY.parent;
   const { offer, site } = content;
   const subjects = (segment.subjects?.length ? segment.subjects : ['math']).filter(key => site.subjects?.[key]);
   const otherGrades = (site.grades || []).filter(grade => !segment.grades.includes(grade));
+  // FR-040: фильтр открывается на том, что обещано в заголовке интента
+  const defaultGrade = intent?.defaultGrade ?? segment.defaultGrade;
+  const defaultSubjects = intent?.defaultSubjects?.length ? intent.defaultSubjects : subjects.slice(0, 1);
   return html`<section id="form" class="sec quiz-sec" aria-labelledby="quiz-title">
 <div class="wrap">
 <div class="quiz-card">
@@ -51,15 +54,15 @@ export function quiz({ segment, content }) {
       <legend class="quiz-step-title" tabindex="-1">${stepTitle(segment, copy, 0)}</legend>
       <p class="quiz-label" id="quiz-grade-label">Класс</p>
       <div class="chips" role="group" aria-labelledby="quiz-grade-label">
-        ${segment.grades.map(grade => html`<button type="button" class="chip" data-grade="${grade}" aria-pressed="${grade === segment.defaultGrade ? 'true' : 'false'}">${grade} класс</button>`)}
+        ${segment.grades.map(grade => html`<button type="button" class="chip" data-grade="${grade}" aria-pressed="${grade === defaultGrade ? 'true' : 'false'}">${grade} класс</button>`)}
         ${otherGrades.length ? html`<button type="button" class="chip chip-more" data-grades-toggle aria-expanded="false" aria-controls="quiz-grades-other">Другой класс</button>` : ''}
       </div>
       ${otherGrades.length ? html`<div class="chips chips-other" id="quiz-grades-other" role="group" aria-label="Другие классы" data-grades-other hidden>
-        ${otherGrades.map(grade => html`<button type="button" class="chip" data-grade="${grade}" aria-pressed="false">${grade} класс</button>`)}
+        ${otherGrades.map(grade => html`<button type="button" class="chip" data-grade="${grade}" aria-pressed="${grade === defaultGrade ? 'true' : 'false'}">${grade} класс</button>`)}
       </div>` : ''}
       <p class="quiz-label" id="quiz-subject-label">Предмет <span class="quiz-label-note">можно выбрать несколько</span></p>
       <div class="chips" role="group" aria-labelledby="quiz-subject-label">
-        ${subjects.map((key, index) => html`<button type="button" class="chip" data-subject="${key}" aria-pressed="${index === 0 ? 'true' : 'false'}">${site.subjects[key]}</button>`)}
+        ${subjects.map(key => html`<button type="button" class="chip" data-subject="${key}" aria-pressed="${defaultSubjects.includes(key) ? 'true' : 'false'}">${site.subjects[key]}</button>`)}
       </div>
       <p class="field-error" data-step1-error hidden></p>
     </fieldset>

@@ -49,18 +49,21 @@ export function tutorsForStep({ segment, subject, tutorsById, preferredId = null
   return ordered.map(id => tutorsById[id]).filter(tutor => teaches(tutor, subject)).slice(0, max);
 }
 
-export function createInitialState({ segment, params = new URLSearchParams(), tutorsById, grades = null, subjects = null }) {
+export function createInitialState({ segment, intent = null, params = new URLSearchParams(), tutorsById, grades = null, subjects = null }) {
   const allowedGrades = grades?.length ? grades : segment.grades;
   const allowedSubjects = subjects?.length ? subjects : (segment.subjects?.length ? segment.subjects : ['math']);
   const grade = Number(params.get('grade'));
   const asked = String(params.get('subject') || '').split(',').map(value => value.trim()).filter(value => allowedSubjects.includes(value));
   const picked = [...new Set(asked)].slice(0, MAX_SUBJECTS);
-  const chosen = picked.length ? picked : [allowedSubjects[0]];
+  // FR-040: умолчания приходят из интента, параметры адреса их перекрывают
+  const fromIntent = (intent?.defaultSubjects || []).filter(subject => allowedSubjects.includes(subject)).slice(0, MAX_SUBJECTS);
+  const chosen = picked.length ? picked : (fromIntent.length ? fromIntent : [allowedSubjects[0]]);
+  const fallbackGrade = allowedGrades.includes(intent?.defaultGrade) ? intent.defaultGrade : segment.defaultGrade;
   const tutorParam = params.get('tutor');
   const tutorId = tutorParam && (segment.tutorIds?.[chosen[0]] || []).includes(tutorParam) && teaches(tutorsById[tutorParam], chosen[0]) ? tutorParam : null;
   return {
     step: 1,
-    grade: allowedGrades.includes(grade) ? grade : segment.defaultGrade,
+    grade: allowedGrades.includes(grade) ? grade : fallbackGrade,
     subjects: chosen,
     allowedGrades,
     allowedSubjects,

@@ -1,0 +1,60 @@
+{
+  "_": "Карта ключевых слов Авито → интент. На страницу влияют только intent и grade; phrase и capacity — справочные, в текст лендинга не попадают никогда. Файл перечитывается сервером на лету: правка связки не требует пересборки.",
+  "keywords": {
+    "repetitor-ege": { "intent": "ege-obshchiy", "phrase": "репетитор егэ", "capacity": 21116 },
+    "podgotovka-k-ege": { "intent": "ege-obshchiy", "phrase": "подготовка к егэ", "capacity": 3250 },
+
+    "repetitor-po-matematike-ege": { "intent": "ege-matematika", "phrase": "репетитор по математике егэ", "capacity": 5718 },
+    "ege-matematika": { "intent": "ege-matematika", "phrase": "егэ математика", "capacity": 2113 },
+    "ege-profilnaya-matematika": { "intent": "ege-matematika", "phrase": "егэ профильная математика", "capacity": 728 },
+    "repetitor-po-matematike-10-klass": { "intent": "ege-matematika", "grade": 10, "phrase": "репетитор по математике 10 класс", "capacity": 800 },
+
+    "ege-russkiy-yazyk": { "intent": "ege-russkiy", "phrase": "егэ русский язык", "capacity": 4389 },
+    "ege-literatura": { "intent": "ege-literatura", "phrase": "егэ литература", "capacity": 1077 },
+
+    "ege-biologiya": { "intent": "ege-biologiya", "phrase": "егэ биология", "capacity": 3541 },
+    "repetitor-po-biologii-ege": { "intent": "ege-biologiya", "phrase": "репетитор по биологии егэ", "capacity": 2263 },
+
+    "ege-informatika": { "intent": "ege-informatika", "phrase": "егэ информатика", "capacity": 2525 },
+    "repetitor-po-informatike-ege": { "intent": "ege-informatika", "phrase": "репетитор по информатике егэ", "capacity": 2201 },
+
+    "ege-fizika": { "intent": "ege-fizika", "phrase": "егэ физика", "capacity": 2626 },
+    "repetitor-po-fizike-ege": { "intent": "ege-fizika", "phrase": "репетитор по физике егэ", "capacity": 1842 },
+
+    "ege-himiya": { "intent": "ege-himiya", "phrase": "егэ химия", "capacity": 2364 },
+    "repetitor-po-himii-ege": { "intent": "ege-himiya", "phrase": "репетитор по химии егэ", "capacity": 1585 },
+
+    "ege-angliyskiy": { "intent": "ege-angliyskiy", "phrase": "егэ английский", "capacity": 2027 },
+    "repetitor-po-angliyskomu-ege": { "intent": "ege-angliyskiy", "phrase": "репетитор по английскому егэ", "capacity": 1277 },
+
+    "repetitor-po-matematike-oge": { "intent": "oge-matematika", "phrase": "репетитор по математике огэ", "capacity": 5908 },
+    "oge-matematika": { "intent": "oge-matematika", "phrase": "огэ математика", "capacity": 2544 },
+
+    "repetitor-po-geometrii": { "intent": "oge-geometriya", "phrase": "репетитор по геометрии", "capacity": 6983 },
+    "repetitor-po-geometrii-8-klass": { "intent": "oge-geometriya", "grade": 8, "phrase": "репетитор по геометрии 8 класс", "capacity": 900 },
+
+    "oge-russkiy-yazyk": { "intent": "oge-russkiy", "phrase": "огэ русский язык", "capacity": 4300 },
+    "podgotovka-k-oge-po-russkomu": { "intent": "oge-russkiy", "phrase": "подготовка к огэ по русскому", "capacity": 595 },
+    "repetitor-po-russkomu-yazyku-5-klass": { "intent": "oge-russkiy", "grade": 5, "phrase": "репетитор по русскому языку 5 класс", "capacity": 868 },
+
+    "oge-biologiya": { "intent": "oge-biologiya", "phrase": "огэ биология", "capacity": 2596 },
+    "repetitor-po-biologii-oge": { "intent": "oge-biologiya", "phrase": "репетитор по биологии огэ", "capacity": 1441 },
+
+    "oge-fizika": { "intent": "oge-fizika", "phrase": "огэ физика", "capacity": 1815 },
+    "repetitor-po-fizike-oge": { "intent": "oge-fizika", "phrase": "репетитор по физике огэ", "capacity": 1279 },
+    "repetitor-po-fizike-7-klass": { "intent": "oge-fizika", "grade": 7, "phrase": "репетитор по физике 7 класс", "capacity": 708 },
+
+    "oge-himiya": { "intent": "oge-himiya", "phrase": "огэ химия", "capacity": 1592 },
+    "repetitor-po-himii-oge": { "intent": "oge-himiya", "phrase": "репетитор по химии огэ", "capacity": 1062 },
+
+    "oge-informatika": { "intent": "oge-informatika", "phrase": "огэ информатика", "capacity": 2097 },
+
+    "oge-angliyskiy": { "intent": "oge-angliyskiy", "phrase": "огэ английский", "capacity": 1223 },
+    "repetitor-po-angliyskomu-oge": { "intent": "oge-angliyskiy", "phrase": "репетитор по английскому огэ", "capacity": 611 },
+
+    "angliyskiy-dlya-detey": { "intent": "deti-angliyskiy", "phrase": "английский для детей", "capacity": 8743 },
+    "repetitor-po-angliyskomu-dlya-rebenka": { "intent": "deti-angliyskiy", "phrase": "репетитор по английскому для ребенка", "capacity": 4527 },
+
+    "pomoshch-s-domashnim-zadaniem": { "intent": "nachalka-dz", "phrase": "помощь с домашним заданием", "capacity": 1179 }
+  }
+}

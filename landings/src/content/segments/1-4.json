@@ -46,11 +46,15 @@
     ],
     "russian": [
       "russian-match"
+    ],
+    "english": [
+      "english-match"
     ]
   },
   "subjects": [
     "math",
-    "russian"
+    "russian",
+    "english"
   ],
   "extraBlocks": [],
   "pains": {

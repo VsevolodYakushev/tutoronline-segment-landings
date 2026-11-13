@@ -45,13 +45,13 @@ test('several subjects: at least one, first is primary (FR-037)', () => {
   const only = reduce(state, { type: 'subject', subject: 'math', tutors: tutorsById });
   assert.deepEqual(only.subjects, ['math'], 'the last subject cannot be unselected');
 
-  const unknown = reduce(state, { type: 'subject', subject: 'biology', tutors: tutorsById });
+  const unknown = reduce(state, { type: 'subject', subject: 'astronomy', tutors: tutorsById });
   assert.equal(unknown, state, 'a subject outside the segment list is ignored');
 
   let many = init();
   for (const subject of segment.subjects.slice(1)) many = reduce(many, { type: 'subject', subject, tutors: tutorsById });
-  assert.ok(many.subjects.length <= MAX_SUBJECTS);
-  assert.deepEqual(many.subjects, segment.subjects);
+  assert.equal(many.subjects.length, Math.min(segment.subjects.length, MAX_SUBJECTS), 'selection stops at the cap');
+  assert.deepEqual(many.subjects, segment.subjects.slice(0, many.subjects.length));
 });
 
 test('step 2 shows at most 3 tutors of the primary subject, the preferred one first', () => {

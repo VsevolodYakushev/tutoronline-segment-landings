@@ -19,9 +19,14 @@
   ],
   "subjects": {
     "math": "Математика",
+    "geometry": "Геометрия",
     "russian": "Русский язык",
+    "literature": "Литература",
     "physics": "Физика",
     "chemistry": "Химия",
+    "biology": "Биология",
+    "informatics": "Информатика",
+    "english": "Английский язык",
     "highermath": "Высшая математика"
   },
   "sourceNotes": {

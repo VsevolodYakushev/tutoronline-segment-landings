@@ -145,7 +145,9 @@ test('Q11: Russian shows the placeholder tutor and a neutral button', async ({ p
 });
 
 test('Q12: double click sends one request; unconfirmed CRM shows phone, no ticket', async ({ page }) => {
-  const requests = await mockLead(page, () => ({ status: 502, body: { success: false, code: 'upstream_unconfirmed' }, delay: 400 }));
+  // Окно запроса широкое намеренно: второй клик двойного нажатия должен попасть в форму,
+  // которая ещё ждёт ответа. С коротким окном тест падал под нагрузкой раз на несколько сотен.
+  const requests = await mockLead(page, () => ({ status: 502, body: { success: false, code: 'upstream_unconfirmed' }, delay: 1500 }));
   await openForm(page);
   await toStep3(page);
   await fillContacts(page);

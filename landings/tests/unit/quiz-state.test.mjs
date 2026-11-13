@@ -54,6 +54,40 @@ test('several subjects: at least one, first is primary (FR-037)', () => {
   assert.deepEqual(many.subjects, segment.subjects.slice(0, many.subjects.length));
 });
 
+test('умолчания фильтра приходят из интента, параметры адреса их перекрывают (FR-040)', () => {
+  const geometry = { key: 'oge-geometriya', cluster: '5-9', defaultGrade: 9, defaultSubjects: ['geometry'] };
+  const withIntent = (query = '') => createInitialState({
+    segment, intent: geometry, params: new URLSearchParams(query), tutorsById, grades: site.grades, subjects: segment.subjects,
+  });
+
+  // интент открывает форму на том, что обещано в заголовке
+  assert.equal(withIntent().grade, 9);
+  assert.deepEqual(withIntent().subjects, ['geometry']);
+  assert.equal(primarySubject(withIntent()), 'geometry');
+
+  // ключевое слово уточняет класс через адрес
+  assert.equal(withIntent('?grade=8').grade, 8);
+  assert.deepEqual(withIntent('?subject=math,physics').subjects, ['math', 'physics']);
+
+  // без интента остаются умолчания кластера
+  assert.equal(init().grade, segment.defaultGrade);
+  assert.deepEqual(init().subjects, [segment.subjects[0]]);
+
+  // предмет, которого нет в кластере, не подставляется из интента
+  const alien = createInitialState({
+    segment, intent: { ...geometry, defaultSubjects: ['highermath'] },
+    params: new URLSearchParams(), tutorsById, grades: site.grades, subjects: segment.subjects,
+  });
+  assert.deepEqual(alien.subjects, [segment.subjects[0]]);
+
+  // класс вне набора сайта тоже игнорируется
+  const badGrade = createInitialState({
+    segment, intent: { ...geometry, defaultGrade: 12 },
+    params: new URLSearchParams(), tutorsById, grades: site.grades, subjects: segment.subjects,
+  });
+  assert.equal(badGrade.grade, segment.defaultGrade);
+});
+
 test('step 2 shows at most 3 tutors of the primary subject, the preferred one first', () => {
   assert.deepEqual(tutorsForStep({ segment, subject: 'math', tutorsById }).map(t => t.id), ['roman-yurievich', 'amet-memetovich', 'galina-vladimirovna']);
   assert.deepEqual(tutorsForStep({ segment, subject: 'math', tutorsById, preferredId: 'rustam-ravilevich' }).map(t => t.id), ['rustam-ravilevich', 'roman-yurievich', 'amet-memetovich']);

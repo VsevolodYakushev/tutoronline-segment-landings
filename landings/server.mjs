@@ -52,7 +52,40 @@ export function loadContent(dir = CONTENT_DIR) {
     const segment = read(path.join('segments', file));
     segments[segment.id] = segment;
   }
-  return { offer: read('offer.json'), tutors: read('tutors.json'), site: read('site.json'), segments };
+  const intents = {};
+  const intentsDir = path.join(dir, 'intents');
+  if (existsSync(intentsDir)) {
+    for (const file of readdirSync(intentsDir)) {
+      if (!file.endsWith('.json')) continue;
+      const intent = read(path.join('intents', file));
+      intents[intent.key] = intent;
+    }
+  }
+  return { offer: read('offer.json'), tutors: read('tutors.json'), site: read('site.json'), segments, intents };
+}
+
+// Ключевое слово объявления → интент. Файл живёт отдельно от сборки и перечитывается
+// по mtime: маркетолог меняет связку без пересборки, а текстов в нём нет — только id.
+export function loadKeywords(dir = CONTENT_DIR) {
+  try { return JSON.parse(readFileSync(path.join(dir, 'keywords.json'), 'utf8')).keywords || {}; }
+  catch { return {}; }
+}
+
+// utm_term приходит как угодно: с плюсами, в верхнем регистре, кириллицей.
+export function normalizeKeyword(value) {
+  return String(value || '').trim().toLowerCase()
+    .replace(/[\s_+]+/g, '-').replace(/[^0-9a-zа-яё-]/gi, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+// Ищем сначала по слагу, затем по исходной фразе — на случай кириллицы в метке.
+export function resolveKeyword(value, keywords) {
+  const slug = normalizeKeyword(value);
+  if (!slug) return null;
+  if (keywords[slug]) return { slug, ...keywords[slug] };
+  for (const [key, entry] of Object.entries(keywords)) {
+    if (entry?.phrase && normalizeKeyword(entry.phrase) === slug) return { slug: key, ...entry };
+  }
+  return null;
 }
 
 function json(response, status, body) {
@@ -125,7 +158,8 @@ export function buildInfo(data) {
     return (clean || '—').slice(0, 120);
   };
   const pairs = [
-    ['Сегмент', data.segment], ['Класс', data.gradeOutside ? `${data.grade} (вне сегмента)` : data.grade],
+    ['Сегмент', data.segment], ['Направление', data.intent], ['Запрос', data.keyword],
+    ['Класс', data.gradeOutside ? `${data.grade} (вне сегмента)` : data.grade],
     ['Предмет', data.subject], ['Ещё предметы', data.extraSubjects], ['Репетитор', data.tutor], ['Слот', data.slot],
     ['Промокод', data.promoCode ? `${data.promoCode} (100%)` : ''],
     [`Скидка −${data.discount} ₽`, data.discountRequested ? 'запрошена' : 'нет'],
@@ -143,6 +177,11 @@ export function leadFields(input, { content, now = Date.now(), bookingId }) {
   const segment = content.segments[input.segment];
   if (!segment) fail('invalid_form');
   if (input.variant !== 'a' && input.variant !== 'b') fail('invalid_form');
+  // FR-041: направление и ключевое слово едут в заявку, иначе экономику по ключу не свести.
+  const intentKey = clean(input.intent, 64);
+  const intent = intentKey ? content.intents?.[intentKey] : null;
+  if (intentKey && (!intent || intent.cluster !== segment.id)) fail('invalid_form');
+  const keyword = clean(input.keyword, 120);
   const labels = content.site?.subjects || SUBJECTS_FALLBACK;
   // FR-038: any grade the site supports is accepted, even outside this segment's own range.
   const grades = content.site?.grades?.length ? content.site.grades : segment.grades;
@@ -184,7 +223,8 @@ export function leadFields(input, { content, now = Date.now(), bookingId }) {
   landing.search = utm.toString();
 
   const info = buildInfo({
-    bookingId, segment: segment.id, grade: input.grade, gradeOutside: !segment.grades.includes(input.grade),
+    bookingId, segment: segment.id, intent: intent?.label || '', keyword,
+    grade: input.grade, gradeOutside: !segment.grades.includes(input.grade),
     subject: labels[primary], extraSubjects: subjects.slice(1).map(subject => labels[subject]).join(', '),
     tutor: tutor.placeholder ? `подобрать (${labels[primary].toLowerCase()})` : tutor.name,
     slot: formatSlotMsk(input.slot), promoCode: content.offer.promoCode, discount: content.offer.discount,
@@ -230,7 +270,9 @@ export function createLandingServer({
   format = process.env.LEAD_WEBHOOK_FORMAT || 'form',
   publicOrigin = process.env.PUBLIC_ORIGIN || '',
   timeoutMs = 12000,
-  content = loadContent(),
+  contentDir = CONTENT_DIR,
+  content = loadContent(contentDir),
+  keywords = null,
   distDir = DIST,
   manifest = null,
   now = () => Date.now(),
@@ -238,6 +280,12 @@ export function createLandingServer({
   if (!['form', 'json'].includes(format)) throw new Error('LEAD_WEBHOOK_FORMAT must be form or json');
   if (new URL(webhook).protocol !== 'https:') throw new Error('Webhook requires HTTPS');
   const segmentIds = Object.keys(content.segments);
+  // Страница = кластер без интента или интент. Кластер нужен для cookie: счётчик мест
+  // и таймер не должны сбрасываться при переходе между интентами одного кластера.
+  const pages = new Map(segmentIds.map(id => [id, id]));
+  for (const intent of Object.values(content.intents || {})) {
+    if (content.segments[intent.cluster]) pages.set(intent.key, intent.cluster);
+  }
   const metrika = Boolean(content.site?.ymCounterId);
   // The policy carries the hashes of this build's inline scripts, so it follows the manifest:
   // a rebuild without a restart must not leave a stale hash in the header.
@@ -255,6 +303,39 @@ export function createLandingServer({
       policies.set(segmentId, contentSecurityPolicy({ inline: loaded?.pages?.[segmentId]?.inline, metrika }));
     }
     return policies.get(segmentId);
+  }
+
+  // Карта ключевых слов живёт вне сборки и перечитывается по mtime.
+  const keywordsFile = path.join(contentDir, 'keywords.json');
+  let keywordList = keywords || loadKeywords(contentDir);
+  let keywordsAt = -1;
+  const unknownKeywords = new Set();
+  function keywordMap() {
+    if (keywords) return keywords;
+    let stamp = 0;
+    try { stamp = statSync(keywordsFile).mtimeMs; } catch { stamp = 0; }
+    if (stamp !== keywordsAt) { keywordList = loadKeywords(contentDir); keywordsAt = stamp; }
+    return keywordList;
+  }
+
+  // Адрес страницы интента, если метка ведёт на другой интент; иначе null — страница как есть.
+  function intentTarget(url, pageId) {
+    const asked = url.searchParams.get('i') || url.searchParams.get('utm_term');
+    if (!asked) return null;
+    const direct = normalizeKeyword(asked);
+    const hit = content.intents?.[direct] ? { intent: direct } : resolveKeyword(asked, keywordMap());
+    if (!hit || !content.intents?.[hit.intent]) {
+      // Молча падать в дефолт нельзя: иначе опечатку в ссылке не заметят месяц.
+      if (direct && !unknownKeywords.has(direct)) {
+        unknownKeywords.add(direct);
+        console.warn(`[landing] неизвестная метка «${direct}» — показана страница без интента`);
+      }
+      return null;
+    }
+    if (hit.intent === pageId) return null;
+    const search = new URLSearchParams(url.search);
+    if (hit.grade && !search.has('grade')) search.set('grade', String(hit.grade));
+    return `/${hit.intent}/?${search.toString()}`;
   }
   const secureCookies = publicOrigin.startsWith('https:');
   const rates = new Map();
@@ -341,20 +422,29 @@ export function createLandingServer({
       if (!['GET', 'HEAD'].includes(request.method)) return json(response, 405, { success: false, code: 'method_not_allowed' });
 
       if (pathname === '/') {
-        response.writeHead(302, securityHeaders({ Location: `/5-9/${url.search}`, 'Cache-Control': 'no-store' }));
+        const target = intentTarget(url, null);
+        response.writeHead(302, securityHeaders({ Location: target || `/5-9/${url.search}`, 'Cache-Control': 'no-store' }));
         return response.end();
       }
-      const segmentMatch = /^\/([0-9]+-[0-9]+)(\/(?:index\.html)?)?$/.exec(pathname);
-      if (segmentMatch && segmentIds.includes(segmentMatch[1])) {
-        const segmentId = segmentMatch[1];
-        if (!segmentMatch[2]) {
-          response.writeHead(301, securityHeaders({ Location: `/${segmentId}/${url.search}` }));
+      const pageMatch = /^\/([0-9a-z-]+)(\/(?:index\.html)?)?$/.exec(pathname);
+      if (pageMatch && pages.has(pageMatch[1])) {
+        const pageId = pageMatch[1];
+        if (!pageMatch[2]) {
+          response.writeHead(301, securityHeaders({ Location: `/${pageId}/${url.search}` }));
           return response.end();
         }
-        const headers = { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache', 'Content-Security-Policy': policyFor(segmentId) };
-        const cookieName = `tst_${content.offer.storageVersion}_${segmentId}`;
-        if (!parseCookies(request.headers.cookie)[cookieName]) headers['Set-Cookie'] = visitorCookie(segmentId, content.offer, { now: now(), secure: secureCookies });
-        return serveFile(request, response, path.join(distDir, segmentId, 'index.html'), headers);
+        // Запасной вход: объявление привело на голый адрес, а направление известно
+        // только из метки. Уводим на страницу интента, сохраняя всю строку запроса.
+        const target = intentTarget(url, pageId);
+        if (target) {
+          response.writeHead(302, securityHeaders({ Location: target, 'Cache-Control': 'no-store' }));
+          return response.end();
+        }
+        const clusterId = pages.get(pageId);
+        const headers = { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache', 'Content-Security-Policy': policyFor(pageId) };
+        const cookieName = `tst_${content.offer.storageVersion}_${clusterId}`;
+        if (!parseCookies(request.headers.cookie)[cookieName]) headers['Set-Cookie'] = visitorCookie(clusterId, content.offer, { now: now(), secure: secureCookies });
+        return serveFile(request, response, path.join(distDir, pageId, 'index.html'), headers);
       }
 
       // Allowlist public files so sources, content JSON and server code are never served.

@@ -406,7 +406,8 @@ export function init(ctx) {
     const tutor = currentTutor();
     const email = state.email.trim();
     const payload = {
-      segment: segment.id, variant: ctx.variant, grade: state.grade, subjects: state.subjects,
+      segment: segment.id, intent: intent?.key || '', keyword: visitor.state.firstTouch?.utm_term || '',
+      variant: ctx.variant, grade: state.grade, subjects: state.subjects,
       tutor: { id: tutor.id, name: tutor.name }, slot: state.slot.startsAt,
       name: state.name.trim(), phone: state.phone, email, discountRequested: Boolean(email) && !offerExpired(),
       commitment: state.commitment, consent_pd: state.consentPd, consent_ads: state.consentAds,

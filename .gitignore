@@ -14,3 +14,6 @@ Thumbs.db
 
 # Redundant archive of the base landing (the folder itself is in the repo)
 Design System/tutoronline-adaptive/tutoronline-adaptive.zip
+
+# Generated for the ad platform (regenerate with npm run ads:links)
+landings/ads-links.csv

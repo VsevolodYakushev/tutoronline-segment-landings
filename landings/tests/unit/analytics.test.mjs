@@ -4,10 +4,16 @@ import { init, track, trackOnce, buildEvent, resetForTests } from '../../src/js/
 
 beforeEach(() => resetForTests());
 
-test('every event carries segment, variant, utm_source, utm_content, ts', () => {
+test('every event carries segment, intent, variant, utm_source, utm_content, utm_term, ts', () => {
   init({ segment: '5-9', variant: 'b', firstTouch: { utm_source: 'avito', utm_content: 'AD1' }, ymCounterId: null });
   const event = buildEvent('lp_step_2', { step: 2 }, 123);
-  assert.deepEqual(event, { event: 'lp_step_2', segment: '5-9', variant: 'b', utm_source: 'avito', utm_content: 'AD1', step: 2, ts: 123 });
+  assert.deepEqual(event, { event: 'lp_step_2', segment: '5-9', intent: null, variant: 'b', utm_source: 'avito', utm_content: 'AD1', utm_term: null, step: 2, ts: 123 });
+
+  // FR-041: без интента и ключевого слова воронку не разложить по объявлениям
+  init({ segment: '5-9', intent: 'oge-geometriya', variant: 'a', firstTouch: { utm_source: 'avito', utm_term: 'repetitor-po-geometrii' } });
+  const withIntent = buildEvent('lp_step_2', { step: 2 }, 123);
+  assert.equal(withIntent.intent, 'oge-geometriya');
+  assert.equal(withIntent.utm_term, 'repetitor-po-geometrii');
 });
 
 test('personal data is stripped from events', () => {

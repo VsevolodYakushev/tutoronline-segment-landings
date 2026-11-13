@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 import segment59 from '../../src/content/segments/5-9.json' with { type: 'json' };
 
+// Форма перерисовывает шаг при изменении состояния, и клик по чекбоксу может попасть
+// между перерисовками: check() тогда не видит смены состояния. Повторяем до успеха.
+async function setChecked(page, selector) {
+  await expect(async () => {
+    await page.locator(selector).check({ force: true });
+    await expect(page.locator(selector)).toBeChecked();
+  }).toPass({ timeout: 10_000 });
+}
+
 const events = page => page.evaluate(() => (window.dataLayer || []).map(event => ({ ...event })));
 const ready = page => page.locator('html[data-ready="true"]').waitFor({ state: 'attached' });
 
@@ -24,8 +33,8 @@ test('Q14: the whole funnel lands in dataLayer with UTM and without personal dat
   await page.click('[data-action="next"]');
   await page.fill('#quiz-name', 'Мария');
   await page.locator('#quiz-phone').pressSequentially('9123456789');
-  await page.check('#quiz-commitment', { force: true });
-  await page.check('#quiz-consent-pd', { force: true });
+  await setChecked(page, '#quiz-commitment');
+  await setChecked(page, '#quiz-consent-pd');
   await page.click('[data-action="submit"]');
   await expect(page.locator('[data-ticket]')).toBeVisible();
 
@@ -69,8 +78,8 @@ test('Q15: ?v=b shows variant b before first paint; without it the stored varian
   await page.click('[data-action="next"]');
   await page.fill('#quiz-name', 'Мария');
   await page.locator('#quiz-phone').pressSequentially('9123456789');
-  await page.check('#quiz-commitment', { force: true });
-  await page.check('#quiz-consent-pd', { force: true });
+  await setChecked(page, '#quiz-commitment');
+  await setChecked(page, '#quiz-consent-pd');
   await page.click('[data-action="submit"]');
   expect((await request).postDataJSON().variant).toBe('b');
 

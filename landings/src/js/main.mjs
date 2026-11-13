@@ -47,7 +47,7 @@ async function start() {
   visitor.captureFirstTouch(location.search);
   showSourceNote(config, visitor.state.firstTouch);
   const variant = document.documentElement.dataset.variant || visitor.state.variant;
-  analytics.init({ segment: segmentId, variant, firstTouch: visitor.state.firstTouch, ymCounterId: config.site.ymCounterId });
+  analytics.init({ segment: segmentId, intent: config.intent?.key || null, variant, firstTouch: visitor.state.firstTouch, ymCounterId: config.site.ymCounterId });
   analytics.watchPage();
   analytics.watchFormStart();
   const ctx = { config, visitor, variant, analytics };

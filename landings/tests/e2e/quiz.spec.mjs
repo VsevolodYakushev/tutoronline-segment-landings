@@ -1,5 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+// Форма перерисовывает шаг при изменении состояния, и клик по чекбоксу может попасть
+// между перерисовками: check() тогда не видит смены состояния. Повторяем до успеха.
+async function setChecked(page, selector) {
+  await expect(async () => {
+    await page.locator(selector).check({ force: true });
+    await expect(page.locator(selector)).toBeChecked();
+  }).toPass({ timeout: 10_000 });
+}
+
+
 const OK = { success: true, bookingId: 'TO-ABC234', promoCode: 'PROMO100' };
 
 async function mockLead(page, respond = () => ({ status: 200, body: OK })) {
@@ -32,8 +42,8 @@ async function fillContacts(page, { email = 'maria@example.com', commitment = tr
   await page.fill('#quiz-name', 'Мария');
   await page.locator('#quiz-phone').pressSequentially('9123456789');
   if (email) await page.fill('#quiz-email', email);
-  if (commitment) await page.check('#quiz-commitment', { force: true });
-  await page.check('#quiz-consent-pd', { force: true });
+  if (commitment) await setChecked(page, '#quiz-commitment');
+  await setChecked(page, '#quiz-consent-pd');
 }
 
 test('Q6: full booking — default grade, hold, wait caption, promo, ticket, payload', async ({ page }) => {
@@ -171,7 +181,7 @@ test('Q9: the hold runs out — the slot is released, the message shows, contact
   // submitting now bounces back to step 2 with the message instead of sending the lead
   await page.click('[data-action="submit"]');
   await expect(page.locator('fieldset[data-step="2"]')).toBeVisible();
-  await expect(page.locator('[data-step2-error]')).toContainText('Место освобождено');
+  await expect(page.locator('[data-step2-error]')).toContainText('место освобождено, выберите время снова');
   await expect(page.locator('.slot[aria-pressed="true"]')).toHaveCount(0);
   await expect(page.locator('[data-hold]')).toBeHidden();
   await expect(page.locator('[data-ticket]')).toBeHidden();
@@ -204,7 +214,8 @@ test('fields wait with the form while the booking is being confirmed (FR-021)', 
 test('several subjects: the first one drives tutors and the lead (FR-037)', async ({ page }) => {
   const requests = await mockLead(page);
   await openForm(page);
-  await expect(page.locator('[data-subject]')).toHaveCount(4); // 5-9: math, russian, physics, chemistry
+  // 5-9: math, geometry, russian, physics, chemistry, biology, informatics, english
+  await expect(page.locator('[data-subject]')).toHaveCount(8);
   await page.click('[data-subject="chemistry"]');
   await expect(page.locator('[data-subject="math"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-subject="chemistry"]')).toHaveAttribute('aria-pressed', 'true');

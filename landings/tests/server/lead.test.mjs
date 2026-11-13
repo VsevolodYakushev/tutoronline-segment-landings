@@ -62,7 +62,7 @@ test('webhook fields: tutor name from tutors.json, server promo code, landing wi
   assert.equal(fields.subject, 'Математика');
   assert.equal(fields.landing, 'https://example.ru/5-9/?utm_source=avito&utm_medium=cpc&utm_campaign=trial-5-9&utm_content=4128837712');
   assert.equal(fields.info,
-    'Бронь пробного урока TO-7KQ2MD | Сегмент: 5-9 | Класс: 7 | Предмет: Математика | Ещё предметы: — | Репетитор: Роман Юрьевич | Слот: чт 12.11.2026 18:00 МСК | Промокод: PROMO100 (100%) | Скидка −1500 ₽: запрошена | Вариант: a | Источник: avito | Объявление: 4128837712 | Реклама: нет | Обязательство прийти: да');
+    'Бронь пробного урока TO-7KQ2MD | Сегмент: 5-9 | Направление: — | Запрос: — | Класс: 7 | Предмет: Математика | Ещё предметы: — | Репетитор: Роман Юрьевич | Слот: чт 12.11.2026 18:00 МСК | Промокод: PROMO100 (100%) | Скидка −1500 ₽: запрошена | Вариант: a | Источник: avito | Объявление: 4128837712 | Реклама: нет | Обязательство прийти: да');
   assert.ok(!fields.info.includes('HACKED'));
   // FR-037: only the primary subject goes into the webhook field, the rest into info
   const several = leadFields(payload({ subjects: ['math', 'physics', 'chemistry'] }), ctx());

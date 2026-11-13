@@ -17,6 +17,8 @@ Origin: https://<PUBLIC_ORIGIN>
 {
   "segment": "5-9",
   "variant": "a",
+  "intent": "oge-geometriya",
+  "keyword": "repetitor-po-geometrii",
   "grade": 7,
   "subjects": ["math", "physics"],
   "tutor": { "id": "roman-yurievich", "name": "Роман Юрьевич" },
@@ -43,6 +45,8 @@ Origin: https://<PUBLIC_ORIGIN>
 |------|-------------|----------------------|--------|
 | `segment` | да | ∈ {`1-4`,`5-9`,`10-11`} | `invalid_form` |
 | `variant` | да | ∈ {`a`,`b`} | `invalid_form` |
+| `intent` | нет | Ключ из `intents/`; должен принадлежать кластеру из `segment`; пусто для прямого трафика на кластер (FR-041) | `invalid_form` |
+| `keyword` | нет | Метка объявления (`utm_term` первого входа), ≤ 120 символов | — |
 | `grade` | да | Целое 1–11 из `site.grades`; вне диапазона сегмента допускается (FR-038) | `invalid_form` |
 | `subjects` | да | Непустой массив ключей из `site.subjects`, без повторов, ≤ 5; первый — основной (FR-037) | `invalid_form` |
 | `tutor.id` | да | Есть в `tutors.json` и ведёт основной предмет (или `placeholder` для него) | `invalid_form` |

@@ -28,8 +28,25 @@ for (const file of walk(OUT).filter(name => /\.(html|mjs)$/.test(name))) {
   if (after !== before) { fs.writeFileSync(file, after); rewritten++; }
 }
 
-const pages = Object.entries(manifest.pages).sort(([a], [b]) => a.localeCompare(b));
-const titles = { '1-4': '1–4 класс', '5-9': '5–9 класс', '10-11': '10–11 класс' };
+const CLUSTERS = { '10-11': '10–11 класс (ЕГЭ)', '5-9': '5–9 класс (ОГЭ)', '1-4': '1–4 класс и дошкольники' };
+const intentsByKey = Object.fromEntries(
+  fs.readdirSync(path.join(ROOT, 'src', 'content', 'intents')).filter(name => name.endsWith('.json'))
+    .map(name => JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'content', 'intents', name), 'utf8')))
+    .map(intent => [intent.key, intent]));
+
+const pages = Object.entries(manifest.pages);
+// Сначала кластерная страница, под ней — её интенты по алфавиту.
+const groups = Object.keys(CLUSTERS).map(cluster => ({
+  cluster,
+  title: CLUSTERS[cluster],
+  rows: [
+    ...pages.filter(([id, page]) => id === cluster && !page.intent)
+      .map(([id]) => ({ id, label: 'Без направления — прямой трафик', hint: 'тексты кластера' })),
+    ...pages.filter(([, page]) => page.cluster === cluster && page.intent)
+      .map(([id]) => ({ id, label: intentsByKey[id]?.label || id, hint: intentsByKey[id]?.hero?.title || '' }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'ru')),
+  ],
+})).filter(group => group.rows.length);
 fs.writeFileSync(path.join(OUT, 'index.html'), `<!doctype html>
 <html lang="ru">
 <head>
@@ -42,6 +59,7 @@ ${NOINDEX}
   body{margin:0;padding:40px 20px;background:#f6f7fb;color:#333;font:400 16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
   main{max-width:640px;margin:0 auto}
   h1{margin:0 0 8px;font-size:28px;line-height:1.2}
+  h2{margin:28px 0 0;font-size:17px;color:#4f4f4f}
   p{margin:0 0 16px;color:#4f4f4f}
   ul{list-style:none;margin:24px 0;padding:0;display:grid;gap:12px}
   a.card{display:block;padding:18px 20px;border-radius:16px;background:#fff;box-shadow:0 2px 10px rgba(51,51,51,.08);color:#5756b3;font-weight:500;text-decoration:none}
@@ -58,11 +76,12 @@ ${NOINDEX}
 </head>
 <body>
 <main>
-  <h1>Сегментные лендинги: превью вёрстки</h1>
-  <p>Три страницы под холодный трафик маркетплейсов. Открывайте с телефона — вёрстка mobile-first, эталон 360×640.</p>
+  <h1>Лендинги под ключевые слова: превью вёрстки</h1>
+  <p>Один шаблон, ${pages.length} страниц: по одной на направление плюс кластерные для прямого трафика. Заголовок и предвыбранные класс с предметом меняются под ключевое слово объявления. Открывайте с телефона — вёрстка mobile-first, эталон 360×640.</p>
+${groups.map(group => `  <h2>${group.title}</h2>
   <ul>
-${pages.map(([id]) => `    <li><a class="card" href="${BASE}/${id}/">${titles[id] || id}<span>${BASE}/${id}/</span></a></li>`).join('\n')}
-  </ul>
+${group.rows.map(row => `    <li><a class="card" href="${BASE}/${row.id}/">${row.label}<span>${row.hint}</span></a></li>`).join('\n')}
+  </ul>`).join('\n')}
   <div class="note">
     <b>Это статическое превью, а не рабочий сайт</b>
     Вёрстка, квиз, таймер скидки и счётчик мест работают. Отправка заявки — нет: за неё отвечает Node-сервер, которого на статическом хостинге нет, поэтому на последнем шаге формы появится сообщение с телефоном вместо экрана брони. Полная версия поднимается локально через <code>npm start</code>.

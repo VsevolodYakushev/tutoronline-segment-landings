@@ -1,5 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+// Форма перерисовывает шаг при изменении состояния, и клик по чекбоксу попадает
+// между перерисовками: check() тогда не видит смены состояния. Повторяем до успеха,
+// как в quiz.spec.mjs и intents.spec.mjs.
+async function setChecked(page, selector) {
+  await expect(async () => {
+    await page.locator(selector).check({ force: true });
+    await expect(page.locator(selector)).toBeChecked();
+  }).toPass({ timeout: 10_000 });
+}
+
 const seatsText = async page => {
   await page.locator('html[data-ready="true"]').waitFor({ state: 'attached' });
   return page.locator('.topbar [data-seats]').textContent();
@@ -81,9 +91,12 @@ test('after a successful booking the counter drops by 1 (not below 1)', async ({
   await page.click('[data-action="next"]');
   await page.fill('#quiz-name', 'Мария');
   await page.locator('#quiz-phone').pressSequentially('9123456789');
-  await page.check('#quiz-commitment', { force: true });
-  await page.check('#quiz-consent-pd', { force: true });
-  await page.click('[data-action="submit"]');
-  await expect(page.locator('[data-ticket]')).toBeVisible();
+  await setChecked(page, '#quiz-commitment');
+  await setChecked(page, '#quiz-consent-pd');
+  await expect(page.locator('#quiz-phone')).toHaveValue('+7 (912) 345-67-89');
+  await expect(async () => {
+    await page.click('[data-action="submit"]');
+    await expect(page.locator('[data-ticket]')).toBeVisible({ timeout: 3_000 });
+  }).toPass({ timeout: 15_000 });
   expect(await seatsText(page)).toBe('Осталось 3 места на этой неделе');
 });

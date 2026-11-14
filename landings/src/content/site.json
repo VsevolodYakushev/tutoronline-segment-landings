@@ -35,6 +35,8 @@
     "ozon": "Специально для пользователей Ozon"
   },
   "ymCounterId": null,
+  "_robots": "Запрет индексации: попадает в метатег robots, в заголовок X-Robots-Tag и в robots.txt. Пустая строка — страницы открыты поисковикам.",
+  "robots": "noindex, nofollow",
   "legal": {
     "consentPd": "https://www.tutoronline.ru/soglasie-na-obrabotku-personalnyh-dannyh",
     "policy": "https://www.tutoronline.ru/politika-obrabotki-personalnyh-dannyh",

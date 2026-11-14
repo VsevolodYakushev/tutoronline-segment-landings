@@ -88,3 +88,23 @@ test('visitorCookie respects offer limits and Secure flag', () => {
   assert.match(high, /^tst_v1_5-9=10\.901000\.b;.*; Secure$/);
   assert.deepEqual(parseCookies('a=1; b=2=3'), { a: '1', b: '2=3' });
 });
+
+test('страницы, статика и редиректы закрыты заголовком X-Robots-Tag', async () => {
+  const page = await fetch(`${base}/oge-geometriya/`);
+  assert.equal(page.headers.get('x-robots-tag'), 'noindex, nofollow');
+
+  // Заголовок нужен и вне HTML: метатег работает только в странице.
+  const redirect = await fetch(`${base}/oge-geometriya`, { redirect: 'manual' });
+  assert.equal(redirect.status, 301);
+  assert.equal(redirect.headers.get('x-robots-tag'), 'noindex, nofollow');
+});
+
+test('/robots.txt отдаётся и разрешает обход', async () => {
+  const response = await fetch(`${base}/robots.txt`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /text\/plain/);
+  const body = await response.text();
+  assert.match(body, /^User-agent: \*$/m);
+  assert.match(body, /^Allow: \/$/m);
+  assert.doesNotMatch(body, /^Disallow: \/$/m);
+});

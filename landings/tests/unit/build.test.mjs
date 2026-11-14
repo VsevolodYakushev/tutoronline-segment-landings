@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { build, BuildError } from '../../build.mjs';
+import { build, BuildError, robotsTxt } from '../../build.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CONTENT = path.join(ROOT, 'src', 'content');
@@ -191,4 +191,55 @@ test('под заголовком без своего репетитора им�
     assert.match(math, /Пробные онлайн-уроки ведут <b>[А-ЯЁ]/, 'по своему предмету имена называем');
     assert.match(math, /data-tutor="roman-yurievich"/);
   } finally { fs.rmSync(outDir, { recursive: true, force: true }); }
+});
+
+// Закрытость от индексации: страницы под платный трафик не должны попадать в поиск:
+// 19 почти одинаковых страниц — это дубли, и они конкурируют с основным сайтом бренда.
+test('каждая страница несёт метатег robots из site.json, в корне лежит robots.txt', async () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'landing-dist-'));
+  try {
+    const manifest = await build({ root: ROOT, contentDir: CONTENT, outDir, log: () => {} });
+    const ids = Object.keys(manifest.pages);
+    assert.equal(ids.length, 22);
+    for (const id of ids) {
+      const page = fs.readFileSync(path.join(outDir, id, 'index.html'), 'utf8');
+      assert.match(page, /<meta name="robots" content="noindex, nofollow">/, `${id}: нет метатега robots`);
+    }
+    const txt = fs.readFileSync(path.join(outDir, 'robots.txt'), 'utf8');
+    assert.match(txt, /^User-agent: \*$/m);
+    assert.match(txt, /^Disallow: \/api\/$/m);
+  } finally { fs.rmSync(outDir, { recursive: true, force: true }); }
+});
+
+test('пустой robots в site.json открывает индексацию, нестрока ломает сборку', async () => {
+  const open = tempContent(d => {
+    const file = path.join(d, 'site.json');
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    data.robots = '';
+    fs.writeFileSync(file, JSON.stringify(data));
+  });
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'landing-dist-'));
+  try {
+    await build({ root: ROOT, contentDir: open, outDir, log: () => {} });
+    const page = fs.readFileSync(path.join(outDir, '5-9', 'index.html'), 'utf8');
+    assert.doesNotMatch(page, /<meta name="robots"/);
+    assert.match(fs.readFileSync(path.join(outDir, 'robots.txt'), 'utf8'), /Индексация разрешена/);
+  } finally { fs.rmSync(outDir, { recursive: true, force: true }); }
+
+  const broken = tempContent(d => {
+    const file = path.join(d, 'site.json');
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    data.robots = true;
+    fs.writeFileSync(file, JSON.stringify(data));
+  });
+  assert.match(await run(broken), /site\.json: robots/);
+});
+
+test('robotsTxt разрешает обход даже при запрете индексации', () => {
+  // Disallow вместо noindex оставил бы адреса в выдаче: робот не скачал бы
+  // страницу и не увидел запрет, а по внешним ссылкам адрес в индекс всё равно попадает.
+  const closed = robotsTxt('noindex, nofollow');
+  assert.match(closed, /^Allow: \/$/m);
+  assert.doesNotMatch(closed, /^Disallow: \/$/m);
+  assert.match(closed, /noindex, nofollow/);
 });

@@ -17,7 +17,7 @@ const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.avif': 'image/avif',
-  '.woff2': 'font/woff2', '.ics': 'text/calendar; charset=utf-8',
+  '.woff2': 'font/woff2', '.ics': 'text/calendar; charset=utf-8', '.txt': 'text/plain; charset=utf-8',
 };
 const STATIC_PATH = /^\/(assets|css|js)\/(?:[A-Za-z0-9_-]+\/)*[A-Za-z0-9_.-]+\.(woff2|webp|avif|png|jpg|svg|css|mjs|js|ics)$/;
 const HASHED = /(?:^|[./])[0-9a-f]{8}(?:[./])/;
@@ -260,8 +260,15 @@ export function contentSecurityPolicy({ inline = {}, metrika = false } = {}) {
   ].join('; ');
 }
 
-function securityHeaders(extra = {}) {
-  return { 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', ...extra };
+// robots — значение из site.json. Заголовком закрываем всё, а не только HTML:
+// метатег работает только в странице, а в индекс может попасть и картинка, и PDF, и редирект.
+function securityHeaders(extra = {}, robots = '') {
+  return {
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    ...(robots ? { 'X-Robots-Tag': robots } : {}),
+    ...extra,
+  };
 }
 
 export function createLandingServer({
@@ -278,6 +285,7 @@ export function createLandingServer({
   now = () => Date.now(),
 } = {}) {
   if (!['form', 'json'].includes(format)) throw new Error('LEAD_WEBHOOK_FORMAT must be form or json');
+  const robots = typeof content.site.robots === 'string' ? content.site.robots.trim() : '';
   if (new URL(webhook).protocol !== 'https:') throw new Error('Webhook requires HTTPS');
   const segmentIds = Object.keys(content.segments);
   // Страница = кластер без интента или интент. Кластер нужен для cookie: счётчик мест
@@ -350,7 +358,7 @@ export function createLandingServer({
       file = compress(file, encoding);
       headers = { ...headers, 'Content-Encoding': encoding, Vary: 'Accept-Encoding' };
     }
-    response.writeHead(200, securityHeaders({ 'Content-Length': file.length, ...headers }));
+    response.writeHead(200, securityHeaders({ 'Content-Length': file.length, ...headers }, robots));
     response.end(request.method === 'HEAD' ? undefined : file);
   }
 
@@ -423,21 +431,21 @@ export function createLandingServer({
 
       if (pathname === '/') {
         const target = intentTarget(url, null);
-        response.writeHead(302, securityHeaders({ Location: target || `/5-9/${url.search}`, 'Cache-Control': 'no-store' }));
+        response.writeHead(302, securityHeaders({ Location: target || `/5-9/${url.search}`, 'Cache-Control': 'no-store' }, robots));
         return response.end();
       }
       const pageMatch = /^\/([0-9a-z-]+)(\/(?:index\.html)?)?$/.exec(pathname);
       if (pageMatch && pages.has(pageMatch[1])) {
         const pageId = pageMatch[1];
         if (!pageMatch[2]) {
-          response.writeHead(301, securityHeaders({ Location: `/${pageId}/${url.search}` }));
+          response.writeHead(301, securityHeaders({ Location: `/${pageId}/${url.search}` }, robots));
           return response.end();
         }
         // Запасной вход: объявление привело на голый адрес, а направление известно
         // только из метки. Уводим на страницу интента, сохраняя всю строку запроса.
         const target = intentTarget(url, pageId);
         if (target) {
-          response.writeHead(302, securityHeaders({ Location: target, 'Cache-Control': 'no-store' }));
+          response.writeHead(302, securityHeaders({ Location: target, 'Cache-Control': 'no-store' }, robots));
           return response.end();
         }
         const clusterId = pages.get(pageId);
@@ -445,6 +453,13 @@ export function createLandingServer({
         const cookieName = `tst_${content.offer.storageVersion}_${clusterId}`;
         if (!parseCookies(request.headers.cookie)[cookieName]) headers['Set-Cookie'] = visitorCookie(clusterId, content.offer, { now: now(), secure: secureCookies });
         return serveFile(request, response, path.join(distDir, pageId, 'index.html'), headers);
+      }
+
+      // robots.txt лежит в корне сборки и под аллоулист статики не подходит — отдаём отдельно.
+      if (pathname === '/robots.txt') {
+        return serveFile(request, response, path.join(distDir, 'robots.txt'), {
+          'Content-Type': MIME['.txt'], 'Cache-Control': 'public, max-age=3600',
+        });
       }
 
       // Allowlist public files so sources, content JSON and server code are never served.

@@ -24,7 +24,9 @@ for (const file of walk(OUT).filter(name => /\.(html|mjs)$/.test(name))) {
   const before = fs.readFileSync(file, 'utf8');
   let after = before;
   for (const dir of ['assets', 'css', 'js']) after = after.replaceAll(`/${dir}/`, `${BASE}/${dir}/`);
-  if (file.endsWith('.html')) after = after.replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${NOINDEX}`);
+  // Сборка уже ставит метатег robots из site.json — свой добавляем только если его нет,
+  // чтобы превью было закрыто даже при открытой индексации боевого сайта.
+  if (file.endsWith('.html') && !/<meta name="robots"/.test(after)) after = after.replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${NOINDEX}`);
   if (after !== before) { fs.writeFileSync(file, after); rewritten++; }
 }
 

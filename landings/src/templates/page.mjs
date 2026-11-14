@@ -49,6 +49,7 @@ export function renderPage(ctx) {
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${meta?.title || content.site.brand}</title>
 <meta name="description" content="${meta?.description || ''}">
+${content.site.robots ? html`<meta name="robots" content="${content.site.robots}">` : ''}
 <meta name="theme-color" content="#5756b3">
 <meta name="format-detection" content="telephone=no">
 <link rel="preload" href="/assets/fonts/graphik-500.woff2" as="font" type="font/woff2" crossorigin>

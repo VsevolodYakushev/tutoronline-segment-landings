@@ -44,6 +44,18 @@ export function loadContent(contentDir) {
 }
 
 // Страницы сборки: кластер без интента (прямой трафик) и по одной на каждый интент.
+// robots.txt при закрытой индексации намеренно разрешает обход: запрет держится на
+// метатеге и заголовке X-Robots-Tag, а их робот увидит только если скачает страницу.
+// Disallow вместо этого оставил бы адреса в выдаче: по внешним ссылкам они попадают
+// в индекс без содержимого, и снять их потом труднее, чем не допустить.
+export function robotsTxt(robots) {
+  const head = robots
+    ? `# Страницы закрыты от индексации метатегом robots и заголовком X-Robots-Tag: ${robots}.\n`
+      + '# Обход разрешён намеренно — иначе робот не увидит запрет и оставит адреса в выдаче.\n'
+    : '# Индексация разрешена (site.json → robots пуст).\n';
+  return `${head}User-agent: *\nDisallow: /api/\nAllow: /\n`;
+}
+
 export function pagesOf(content) {
   const byCluster = new Map(content.segments.map(segment => [segment.id, segment]));
   return [
@@ -66,6 +78,7 @@ export function validate(content, { strict = false } = {}) {
   const { offer, tutors, segments, stopwords } = content;
   if (!(Number.isInteger(offer.seatsMin) && Number.isInteger(offer.seatsMax) && offer.seatsMin <= offer.seatsMax)) errors.push('offer.json: seatsMin ≤ seatsMax (целые числа)');
   if (!(offer.timerMinutes > 0)) errors.push('offer.json: timerMinutes > 0');
+  if (content.site.robots !== undefined && typeof content.site.robots !== 'string') errors.push('site.json: robots — строка для метатега и заголовка (пустая — индексация разрешена)');
   if (offer.lessonPrice !== null && !(Number.isInteger(offer.lessonPrice) && offer.lessonPrice > offer.discount)) errors.push('offer.json: lessonPrice — null или целое больше discount');
   if (strict && !String(offer.promoCode || '').trim()) errors.push('offer.json: promoCode обязателен в строгом режиме (production)');
 
@@ -220,6 +233,7 @@ export async function build({ root = ROOT, contentDir = path.join(root, 'src', '
   // иначе правка связки ключ→интент требовала бы пересборки.
   if (renderErrors.length) throw new BuildError(renderErrors);
   fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
+  fs.writeFileSync(path.join(outDir, 'robots.txt'), robotsTxt(content.site.robots));
   const intentCount = pages.filter(page => page.intent).length;
   log(`Built ${pages.length} pages${strict ? ' (strict)' : ''}: ${content.segments.length} кластерных + ${intentCount} интентов → ${path.relative(root, outDir) || outDir}`);
   return manifest;

@@ -54,7 +54,9 @@ test('Q14: the whole funnel lands in dataLayer with UTM and without personal dat
     expect(event).toMatchObject({ segment: '5-9', utm_source: 'avito', utm_content: 'TEST1' });
     expect(['a', 'b']).toContain(event.variant);
   }
-  const serialized = JSON.stringify(list);
+  // ts — миллисекунды, и трёхзначный хвост времени случайно совпадает с «912»
+  // примерно в одном прогоне из ста. Исключаем метки времени: проверяем телефон и имя, а не часы.
+  const serialized = JSON.stringify(list, (key, value) => (key === 'ts' ? undefined : value));
   expect(serialized).not.toContain('Мария');
   expect(serialized).not.toContain('912');
   expect(requests[0].attribution).toEqual({ utm_source: 'avito', utm_content: 'TEST1' });

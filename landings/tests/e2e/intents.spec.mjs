@@ -131,7 +131,19 @@ test('бронь с интента доходит до билета, в заяв
   await page.locator('#quiz-phone').pressSequentially('9123456789');
   await setChecked(page, '#quiz-commitment');
   await setChecked(page, '#quiz-consent-pd');
-  await page.click('[data-action="submit"]');
+
+  // Сначала фиксируем, что форма действительно заполнена: иначе падение выглядит
+  // как «нет билета», а причина в сброшенных полях и найти её по логу невозможно.
+  await expect(page.locator('#quiz-phone')).toHaveValue('+7 (912) 345-67-89');
+  await expect(page.locator('#quiz-commitment')).toBeChecked();
+  await expect(page.locator('#quiz-consent-pd')).toBeChecked();
+
+  // Клик по «Забронировать» иногда приходится на перерисовку шага и теряется.
+  // Повтор безопасен: приложение блокирует повторную отправку, и ниже проверяется ровно один запрос.
+  await expect(async () => {
+    await page.click('[data-action="submit"]');
+    await expect(page.locator('[data-ticket]')).toBeVisible({ timeout: 3_000 });
+  }).toPass({ timeout: 15_000 });
 
   await expect(page.locator('[data-ticket]')).toBeVisible();
   expect(requests).toHaveLength(1);

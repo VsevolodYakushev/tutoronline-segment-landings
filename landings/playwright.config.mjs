@@ -22,6 +22,9 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:8765',
     locale: 'ru-RU',
     timezoneId: 'Europe/Moscow',
+    // Падения формы под нагрузкой редкие и не воспроизводятся в одиночном прогоне,
+    // поэтому трассу упавшего теста сохраняем: без неё причину не найти.
+    trace: 'retain-on-failure',
   },
   projects: engines.flatMap(engine => widths.map(width => ({
     name: `${engine.name}-${width.name}`,

@@ -112,8 +112,12 @@ test('Q8: commitment checkbox is required', async ({ page }) => {
   await openForm(page);
   await toStep3(page);
   await fillContacts(page, { commitment: false });
-  await page.click('[data-action="submit"]');
-  await expect(page.locator('#quiz-commitment-error')).toHaveText('Отметьте, что придёте на урок');
+  // Клик по «Забронировать» иногда попадает в перерисовку шага после чекбокса согласия
+  // и теряется. Отправку блокирует валидация, поэтому повтор безопасен: запросов всё равно 0.
+  await expect(async () => {
+    await page.click('[data-action="submit"]');
+    await expect(page.locator('#quiz-commitment-error')).toHaveText('Отметьте, что придёте на урок');
+  }).toPass({ timeout: 10_000 });
   expect(requests).toHaveLength(0);
 });
 
